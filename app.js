@@ -9,7 +9,92 @@ class WASPAApp {
       editingTest: null,
       editingWarning: null
     };
+
+    renderManagerOverview() {
+    return `
+      <div class="card animate-fade-in">
+        <div class="card-header">
+          <h2>Manager Overview</h2>
+        </div>
+        <div class="p-4">
+          <p>Manager overview content will go here.</p>
+          <p>This would include team stats, recent activity, etc.</p>
+          <div class="mt-4 p-3 bg-secondary rounded">
+            <h3 class="text-lg font-bold mb-2">Quick Stats:</h3>
+            <ul class="space-y-1">
+              <li>Total Users: ${authManager.users ? authManager.users.length : 'Loading...'}</li>
+              <li>Total Tests: ${dataManager.tests.length}</li>
+              <li>Total Warnings: ${dataManager.warnings.length}</li>
+              <li>Active Today: ${dataManager.getActiveUsersToday().length}</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    `;
   }
+
+  renderManagerExportTab() {
+    return `
+      <div class="card animate-fade-in">
+        <div class="card-header">
+          <h2>Export Manager Reports</h2>
+        </div>
+        <div class="p-4">
+          <p>Export comprehensive reports for management.</p>
+          <div class="space-y-3 mt-4">
+            <button class="btn btn-primary w-full">Export All Test Data (CSV)</button>
+            <button class="btn btn-primary w-full">Export Warning Reports (PDF)</button>
+            <button class="btn btn-primary w-full">Export User Activity Logs</button>
+            <button class="btn btn-primary w-full">Generate Monthly Summary</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  renderAdminTab() {
+    return `
+      <div class="card animate-fade-in">
+        <div class="card-header">
+          <h2>Admin Controls</h2>
+        </div>
+        <div class="p-4">
+          <p>Administrative functions for managing the system.</p>
+          <div class="space-y-3 mt-4">
+            <button class="btn btn-destructive w-full">Reset All Test Data</button>
+            <button class="btn btn-destructive w-full">Clear All Warnings</button>
+            <button class="btn btn-secondary w-full">Manage User Permissions</button>
+            <button class="btn btn-secondary w-full">System Settings</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  renderUserStatsTab() {
+    return `
+      <div class="card animate-fade-in">
+        <div class="card-header">
+          <h2>User Statistics</h2>
+        </div>
+        <div class="p-4">
+          <p>Detailed statistics and analytics for users.</p>
+          <div class="mt-4 grid grid-cols-2 gap-4">
+            <div class="p-3 bg-secondary rounded">
+              <h3 class="font-bold">Performance</h3>
+              <p class="text-2xl mt-2">85%</p>
+            </div>
+            <div class="p-3 bg-secondary rounded">
+              <h3 class="font-bold">Completion Rate</h3>
+              <p class="text-2xl mt-2">92%</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+  }
+
 
   async init() {
     try {
@@ -710,4 +795,5 @@ class WASPAApp {
 document.addEventListener('DOMContentLoaded', async () => {
   window.app = new WASPAApp();
   await window.app.init();
+
 });
