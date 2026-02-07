@@ -1,4 +1,3 @@
-// scripts/app.js
 class WASPAApp {
   constructor() {
     this.currentState = {
@@ -9,8 +8,9 @@ class WASPAApp {
       editingTest: null,
       editingWarning: null
     };
+  }  
 
-    renderManagerOverview() {
+  renderManagerOverview() {
     return `
       <div class="card animate-fade-in">
         <div class="card-header">
@@ -93,8 +93,6 @@ class WASPAApp {
       </div>
     `;
   }
-  }
-
 
   async init() {
     try {
@@ -797,3 +795,4 @@ document.addEventListener('DOMContentLoaded', async () => {
   await window.app.init();
 
 });
+
