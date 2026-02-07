@@ -674,7 +674,7 @@ viewUserDetails(userId) {
       case 'overview': return this.renderManagerOverview();
       case 'stats': return this.renderUserStatsTab();
       case 'export': return this.renderManagerExportTab();
-      case 'admin': return this.renderAdminTab();
+      case 'users': return this.renderAdminTab();
       default: return this.renderManagerOverview();
     }
   }
@@ -1602,6 +1602,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   await window.app.init();
 
 });
+
 
 
 
