@@ -10,90 +10,6 @@ class WASPAApp {
     };
   }  
 
-  renderManagerOverview() {
-    return `
-      <div class="card animate-fade-in">
-        <div class="card-header">
-          <h2>Manager Overview</h2>
-        </div>
-        <div class="p-4">
-          <p>Manager overview content will go here.</p>
-          <p>This would include team stats, recent activity, etc.</p>
-          <div class="mt-4 p-3 bg-secondary rounded">
-            <h3 class="text-lg font-bold mb-2">Quick Stats:</h3>
-            <ul class="space-y-1">
-              <li>Total Users: ${authManager.users ? authManager.users.length : 'Loading...'}</li>
-              <li>Total Tests: ${dataManager.tests.length}</li>
-              <li>Total Warnings: ${dataManager.warnings.length}</li>
-              <li>Active Today: ${dataManager.getActiveUsersToday().length}</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    `;
-  }
-
-  renderManagerExportTab() {
-    return `
-      <div class="card animate-fade-in">
-        <div class="card-header">
-          <h2>Export Manager Reports</h2>
-        </div>
-        <div class="p-4">
-          <p>Export comprehensive reports for management.</p>
-          <div class="space-y-3 mt-4">
-            <button class="btn btn-primary w-full">Export All Test Data (CSV)</button>
-            <button class="btn btn-primary w-full">Export Warning Reports (PDF)</button>
-            <button class="btn btn-primary w-full">Export User Activity Logs</button>
-            <button class="btn btn-primary w-full">Generate Monthly Summary</button>
-          </div>
-        </div>
-      </div>
-    `;
-  }
-
-  renderAdminTab() {
-    return `
-      <div class="card animate-fade-in">
-        <div class="card-header">
-          <h2>Admin Controls</h2>
-        </div>
-        <div class="p-4">
-          <p>Administrative functions for managing the system.</p>
-          <div class="space-y-3 mt-4">
-            <button class="btn btn-destructive w-full">Reset All Test Data</button>
-            <button class="btn btn-destructive w-full">Clear All Warnings</button>
-            <button class="btn btn-secondary w-full">Manage User Permissions</button>
-            <button class="btn btn-secondary w-full">System Settings</button>
-          </div>
-        </div>
-      </div>
-    `;
-  }
-
-  renderUserStatsTab() {
-    return `
-      <div class="card animate-fade-in">
-        <div class="card-header">
-          <h2>User Statistics</h2>
-        </div>
-        <div class="p-4">
-          <p>Detailed statistics and analytics for users.</p>
-          <div class="mt-4 grid grid-cols-2 gap-4">
-            <div class="p-3 bg-secondary rounded">
-              <h3 class="font-bold">Performance</h3>
-              <p class="text-2xl mt-2">85%</p>
-            </div>
-            <div class="p-3 bg-secondary rounded">
-              <h3 class="font-bold">Completion Rate</h3>
-              <p class="text-2xl mt-2">92%</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    `;
-  }
-
   async init() {
     try {
       // Initialize Firebase connection
@@ -666,13 +582,360 @@ class WASPAApp {
     `;
   }
 
-  // ... (Other render methods for warnings, upload, export, manager views would follow the same pattern)
+   renderManagerOverview() {
+    return `
+      <div class="card animate-fade-in">
+        <div class="card-header">
+          <h2>Manager Overview</h2>
+        </div>
+        <div class="p-4">
+          <p>Manager overview content will go here.</p>
+          <p>This would include team stats, recent activity, etc.</p>
+          <div class="mt-4 p-3 bg-secondary rounded">
+            <h3 class="text-lg font-bold mb-2">Quick Stats:</h3>
+            <ul class="space-y-1">
+              <li>Total Users: ${authManager.users ? authManager.users.length : 'Loading...'}</li>
+              <li>Total Tests: ${dataManager.tests.length}</li>
+              <li>Total Warnings: ${dataManager.warnings.length}</li>
+              <li>Active Today: ${dataManager.getActiveUsersToday().length}</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  renderManagerExportTab() {
+    return `
+      <div class="card animate-fade-in">
+        <div class="card-header">
+          <h2>Export Manager Reports</h2>
+        </div>
+        <div class="p-4">
+          <p>Export comprehensive reports for management.</p>
+          <div class="space-y-3 mt-4">
+            <button class="btn btn-primary w-full">Export All Test Data (CSV)</button>
+            <button class="btn btn-primary w-full">Export Warning Reports (PDF)</button>
+            <button class="btn btn-primary w-full">Export User Activity Logs</button>
+            <button class="btn btn-primary w-full">Generate Monthly Summary</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  renderAdminTab() {
+    return `
+      <div class="card animate-fade-in">
+        <div class="card-header">
+          <h2>Admin Controls</h2>
+        </div>
+        <div class="p-4">
+          <p>Administrative functions for managing the system.</p>
+          <div class="space-y-3 mt-4">
+            <button class="btn btn-destructive w-full">Reset All Test Data</button>
+            <button class="btn btn-destructive w-full">Clear All Warnings</button>
+            <button class="btn btn-secondary w-full">Manage User Permissions</button>
+            <button class="btn btn-secondary w-full">System Settings</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  renderUserStatsTab() {
+    return `
+      <div class="card animate-fade-in">
+        <div class="card-header">
+          <h2>User Statistics</h2>
+        </div>
+        <div class="p-4">
+          <p>Detailed statistics and analytics for users.</p>
+          <div class="mt-4 grid grid-cols-2 gap-4">
+            <div class="p-3 bg-secondary rounded">
+              <h3 class="font-bold">Performance</h3>
+              <p class="text-2xl mt-2">85%</p>
+            </div>
+            <div class="p-3 bg-secondary rounded">
+              <h3 class="font-bold">Completion Rate</h3>
+              <p class="text-2xl mt-2">92%</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  renderUploadTab() {
+  return `
+    <div class="card animate-fade-in">
+      <div class="card-header">
+        <h2>Upload Documents</h2>
+      </div>
+      <div class="p-4">
+        <p>Upload test documents, certifications, or other files.</p>
+        <div class="mt-6 space-y-4">
+          <div class="upload-area">
+            <div class="upload-content">
+              <span class="upload-icon">📁</span>
+              <p class="upload-text">Drag & drop files here</p>
+              <p class="upload-subtext">or click to browse</p>
+              <input type="file" class="upload-input" multiple />
+            </div>
+          </div>
+          <div class="text-sm text-muted-foreground">
+            <p>• Supported formats: PDF, DOC, DOCX, XLS, XLSX, JPG, PNG</p>
+            <p>• Max file size: 10MB per file</p>
+          </div>
+          <button class="btn btn-primary w-full">Upload Selected Files</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+renderWarningsTab() {
+  const today = new Date().toISOString().split('T')[0];
+  
+  return `
+    <div class="grid-2 animate-fade-in">
+      <!-- Warning Form -->
+      <div class="card">
+        <div class="card-header">
+          <h2>Record Warning</h2>
+        </div>
+        
+        <form id="warning-form" class="space-y-4">
+          <div class="form-grid">
+            <div>
+              <label>Date</label>
+              <input type="date" id="warning-date" value="${today}" required />
+            </div>
+            <div>
+              <label>Warning Type</label>
+              <select id="warning-type" required>
+                <option value="">Select Type</option>
+                ${CONSTANTS.WARNING_TYPES.map(w => `<option value="${w}">${w}</option>`).join('')}
+              </select>
+            </div>
+          </div>
+          
+          <div>
+            <label>Recipient</label>
+            <input type="text" id="warning-recipient" placeholder="Enter recipient name" required />
+          </div>
+          
+          <div>
+            <label>Reference Number</label>
+            <input type="text" id="warning-reference" placeholder="WA1234" pattern="^WA\d{4,}$" required />
+            <div class="form-hint">Format: WA followed by numbers (e.g., WA1234)</div>
+          </div>
+          
+          <div>
+            <label>Details</label>
+            <textarea id="warning-details" rows="3" placeholder="Describe the warning details..." required></textarea>
+          </div>
+          
+          <div>
+            <label>Problem Areas</label>
+            <textarea id="warning-problemAreas" rows="2" placeholder="Specify problem areas..." required></textarea>
+          </div>
+          
+          <button type="submit" class="btn btn-primary btn-block">Record Warning</button>
+        </form>
+      </div>
+      
+      <!-- Warnings List -->
+      <div class="card">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="card-title">Recent Warnings</h2>
+          <button id="clear-warnings" class="btn btn-destructive text-sm">
+            Clear All
+          </button>
+        </div>
+        
+        <div class="max-h-500 overflow-y-auto">
+          ${dataManager.warnings.length === 0 ? `
+            <div class="empty-state">
+              <div class="empty-icon">⚠️</div>
+              <p>No warnings recorded yet</p>
+            </div>
+          ` : dataManager.warnings.map(warning => `
+            <div class="warning-item">
+              <div class="item-header">
+                <span class="item-title">${warning.type} - ${warning.recipient}</span>
+                <span class="item-date">${formatDateShort(warning.date)}</span>
+              </div>
+              <div class="item-reference">Ref: ${warning.reference}</div>
+              <p class="item-description">${warning.details}</p>
+              <div class="problem-areas">
+                <strong>Problem Areas:</strong> ${warning.problemAreas}
+              </div>
+              <div class="item-footer">
+                <div class="item-actions">
+                  <button onclick="app.editWarning('${warning.id}')" class="action-btn edit">✏️ Edit</button>
+                  <button onclick="app.deleteWarning('${warning.id}')" class="action-btn delete">🗑️ Delete</button>
+                </div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+renderExportTab() {
+  return `
+    <div class="card animate-fade-in">
+      <div class="card-header">
+        <h2>Export Data</h2>
+      </div>
+      <div class="p-4">
+        <p>Export your test and warning data for reporting.</p>
+        <div class="space-y-3 mt-4">
+          <button class="btn btn-primary w-full" onclick="dataManager.exportTestsCSV()">
+            Export Test Data (CSV)
+          </button>
+          <button class="btn btn-primary w-full" onclick="dataManager.exportWarningsCSV()">
+            Export Warning Data (CSV)
+          </button>
+          <button class="btn btn-primary w-full" onclick="dataManager.exportAllData()">
+            Export All Data (JSON)
+          </button>
+          <div class="export-options mt-6">
+            <h3 class="font-bold mb-2">Date Range Export</h3>
+            <div class="form-grid">
+              <div>
+                <label>From Date</label>
+                <input type="date" id="export-from" class="w-full" />
+              </div>
+              <div>
+                <label>To Date</label>
+                <input type="date" id="export-to" class="w-full" />
+              </div>
+            </div>
+            <button class="btn btn-secondary w-full mt-2" onclick="dataManager.exportDateRange()">
+              Export Date Range
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
 
   attachFormListeners() {
     // This is handled by the global event listeners in setupGlobalEventListeners
   }
 
   // Global methods for inline event handlers
+ async editWarning(warningId) {
+  const warning = dataManager.warnings.find(w => w.id === warningId);
+  if (warning) {
+    this.currentState.editingWarning = warning;
+    this.renderEditWarningDialog();
+  }
+}
+
+async deleteWarning(warningId) {
+  if (confirm('Are you sure you want to delete this warning?')) {
+    try {
+      await dataManager.deleteWarning(warningId);
+      this.render();
+    } catch (error) {
+      // Error handled in dataManager
+    }
+  }
+}
+
+renderEditWarningDialog() {
+  if (!this.currentState.editingWarning) return '';
+  
+  const warning = this.currentState.editingWarning;
+  
+  const content = `
+    <div class="dialog-content max-w-lg">
+      <h2 class="text-lg font-bold text-primary mb-4">Edit Warning Record</h2>
+      <form id="edit-warning-form" class="space-y-4">
+        <input type="hidden" id="edit-warning-id" value="${warning.id}" />
+        <div class="form-grid">
+          <div>
+            <label>Date</label>
+            <input type="date" id="edit-warning-date" value="${warning.date}" required />
+          </div>
+          <div>
+            <label>Warning Type</label>
+            <select id="edit-warning-type" required>
+              <option value="">Select Type</option>
+              ${CONSTANTS.WARNING_TYPES.map(w => `
+                <option value="${w}" ${warning.type === w ? 'selected' : ''}>${w}</option>
+              `).join('')}
+            </select>
+          </div>
+        </div>
+        <div>
+          <label>Recipient</label>
+          <input type="text" id="edit-warning-recipient" value="${warning.recipient}" required />
+        </div>
+        <div>
+          <label>Reference Number</label>
+          <input type="text" id="edit-warning-reference" value="${warning.reference}" pattern="^WA\d{4,}$" required />
+        </div>
+        <div>
+          <label>Details</label>
+          <textarea id="edit-warning-details" rows="3" required>${warning.details}</textarea>
+        </div>
+        <div>
+          <label>Problem Areas</label>
+          <textarea id="edit-warning-problemAreas" rows="2" required>${warning.problemAreas}</textarea>
+        </div>
+        <div class="flex justify-end gap-2">
+          <button type="button" onclick="closeDialog()" class="btn btn-outline">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  `;
+  
+  showDialog(content, () => {
+    this.currentState.editingWarning = null;
+  });
+  
+  // Attach form submit handler
+  setTimeout(() => {
+    const form = document.getElementById('edit-warning-form');
+    if (form) {
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const warningData = {
+          date: document.getElementById('edit-warning-date').value,
+          type: document.getElementById('edit-warning-type').value,
+          recipient: document.getElementById('edit-warning-recipient').value,
+          reference: document.getElementById('edit-warning-reference').value,
+          details: document.getElementById('edit-warning-details').value,
+          problemAreas: document.getElementById('edit-warning-problemAreas').value
+        };
+        
+        if (!warningData.reference.match(/^WA\d{4,}$/)) {
+          showToast('Reference must be in format WAxxxx (e.g., WA1234)', 'error');
+          return;
+        }
+        
+        try {
+          await dataManager.updateWarning(warning.id, warningData);
+          closeDialog();
+          this.currentState.editingWarning = null;
+          this.render();
+        } catch (error) {
+          // Error handled in dataManager
+        }
+      });
+    }
+  }, 100);
+}
+  
   async editTest(testId) {
     const test = dataManager.tests.find(t => t.id === testId);
     if (test) {
@@ -787,6 +1050,7 @@ class WASPAApp {
   renderEditDialogs() {
     return '';
   }
+  
 }
 
 // Initialize and start the app
@@ -795,4 +1059,5 @@ document.addEventListener('DOMContentLoaded', async () => {
   await window.app.init();
 
 });
+
 
