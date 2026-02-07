@@ -1202,7 +1202,6 @@ renderAdminTab() {
   `;
 }
 
-// Add these helper functions if not already defined
   
  renderUploadTab() {
   return `
@@ -1597,12 +1596,38 @@ function getWeekNumber(date) {
   return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
 }
 
+function formatDateShort(dateString) {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+
+function getResultColor(result) {
+  switch (result.toLowerCase()) {
+    case 'complete':
+    case 'compliant':
+    case 'passed':
+      return 'result-compliant';
+    case 'partial':
+    case 'warning':
+    case 'inconclusive':
+      return 'result-inconclusive';
+    case 'failed':
+    case 'non-compliant':
+      return 'result-non-compliant';
+    default:
+      return '';
+  }
+}
+
 // Initialize and start the app
 document.addEventListener('DOMContentLoaded', async () => {
   window.app = new WASPAApp();
   await window.app.init();
 
 });
+
 
 
 
