@@ -183,6 +183,203 @@ class WASPAApp {
     });
   }
 
+  async toggleUserRole(userId, makeManager) {
+  if (confirm(`Are you sure you want to ${makeManager ? 'promote' : 'demote'} this user?`)) {
+    try {
+      await dataManager.updateUserRole(userId, makeManager);
+      this.render();
+    } catch (error) {
+      showToast(`Failed to update user role: ${error.message}`, 'error');
+    }
+  }
+}
+
+async exportTests() {
+  try {
+    const userId = document.getElementById('export-user')?.value || 'all';
+    const fromDate = document.getElementById('export-from')?.value;
+    const toDate = document.getElementById('export-to')?.value;
+    const network = document.getElementById('export-network')?.value;
+    
+    let testsToExport = dataManager.tests;
+    
+    // Filter by user
+    if (userId !== 'all') {
+      testsToExport = testsToExport.filter(test => test.userId === userId);
+    }
+    
+    // Filter by date range
+    if (fromDate) {
+      testsToExport = testsToExport.filter(test => test.date >= fromDate);
+    }
+    if (toDate) {
+      testsToExport = testsToExport.filter(test => test.date <= toDate);
+    }
+    
+    // Filter by network
+    if (network && network !== 'all') {
+      testsToExport = testsToExport.filter(test => test.network === network);
+    }
+    
+    if (testsToExport.length === 0) {
+      showToast('No tests found with the selected filters', 'warning');
+      return;
+    }
+    
+    dataManager.exportToCSV(testsToExport, `tests_export_${new Date().toISOString().split('T')[0]}.csv`);
+  } catch (error) {
+    showToast(`Export failed: ${error.message}`, 'error');
+  }
+}
+
+async exportWarnings() {
+  try {
+    const userId = document.getElementById('export-user')?.value || 'all';
+    const fromDate = document.getElementById('export-from')?.value;
+    const toDate = document.getElementById('export-to')?.value;
+    
+    let warningsToExport = dataManager.warnings;
+    
+    // Filter by user
+    if (userId !== 'all') {
+      warningsToExport = warningsToExport.filter(warning => warning.userId === userId);
+    }
+    
+    // Filter by date range
+    if (fromDate) {
+      warningsToExport = warningsToExport.filter(warning => warning.date >= fromDate);
+    }
+    if (toDate) {
+      warningsToExport = warningsToExport.filter(warning => warning.date <= toDate);
+    }
+    
+    if (warningsToExport.length === 0) {
+      showToast('No warnings found with the selected filters', 'warning');
+      return;
+    }
+    
+    dataManager.exportToCSV(warningsToExport, `warnings_export_${new Date().toISOString().split('T')[0]}.csv`);
+  } catch (error) {
+    showToast(`Export failed: ${error.message}`, 'error');
+  }
+}
+
+async exportAllData() {
+  try {
+    const userId = document.getElementById('export-user')?.value || 'all';
+    const fromDate = document.getElementById('export-from')?.value;
+    const toDate = document.getElementById('export-to')?.value;
+    const network = document.getElementById('export-network')?.value;
+    
+    let allData = [];
+    
+    // Add tests
+    let testsToExport = dataManager.tests;
+    if (userId !== 'all') {
+      testsToExport = testsToExport.filter(test => test.userId === userId);
+    }
+    if (fromDate) {
+      testsToExport = testsToExport.filter(test => test.date >= fromDate);
+    }
+    if (toDate) {
+      testsToExport = testsToExport.filter(test => test.date <= toDate);
+    }
+    if (network && network !== 'all') {
+      testsToExport = testsToExport.filter(test => test.network === network);
+    }
+    
+    // Add warnings
+    let warningsToExport = dataManager.warnings;
+    if (userId !== 'all') {
+      warningsToExport = warningsToExport.filter(warning => warning.userId === userId);
+    }
+    if (fromDate) {
+      warningsToExport = warningsToExport.filter(warning => warning.date >= fromDate);
+    }
+    if (toDate) {
+      warningsToExport = warningsToExport.filter(warning => warning.date <= toDate);
+    }
+    
+    if (testsToExport.length === 0 && warningsToExport.length === 0) {
+      showToast('No data found with the selected filters', 'warning');
+      return;
+    }
+    
+    dataManager.exportToCSV(
+      [...testsToExport, ...warningsToExport], 
+      `full_export_${new Date().toISOString().split('T')[0]}.csv`
+    );
+  } catch (error) {
+    showToast(`Export failed: ${error.message}`, 'error');
+  }
+}
+
+async updateUserRole() {
+  const userId = document.getElementById('promote-user')?.value;
+  const action = document.getElementById('promote-action')?.value;
+  
+  if (!userId) {
+    showToast('Please select a user', 'error');
+    return;
+  }
+  
+  const makeManager = action === 'promote';
+  await this.toggleUserRole(userId, makeManager);
+}
+
+viewUserDetails(userId) {
+  const user = authManager.users.find(u => u.id === userId);
+  if (!user) return;
+  
+  const userTests = dataManager.tests.filter(t => t.userId === userId);
+  const userWarnings = dataManager.warnings.filter(w => w.userId === userId);
+  
+  const content = `
+    <div class="dialog-content max-w-2xl">
+      <h2 class="text-lg font-bold text-primary mb-4">User Details: ${user.name || user.email}</h2>
+      <div class="space-y-4">
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <h3 class="font-bold mb-1">Basic Info</h3>
+            <p>Email: ${user.email}</p>
+            <p>Role: ${user.isManager ? 'Manager' : 'User'}</p>
+            <p>Joined: ${user.createdAt ? formatDateShort(user.createdAt) : 'Unknown'}</p>
+          </div>
+          <div>
+            <h3 class="font-bold mb-1">Activity</h3>
+            <p>Total Tests: ${userTests.length}</p>
+            <p>Total Warnings: ${userWarnings.length}</p>
+            <p>Last Login: ${user.lastLogin ? formatDateShort(user.lastLogin) : 'Never'}</p>
+          </div>
+        </div>
+        
+        ${userTests.length > 0 ? `
+          <div>
+            <h3 class="font-bold mb-2">Recent Tests</h3>
+            <div class="max-h-40 overflow-y-auto">
+              ${userTests.slice(0, 5).map(test => `
+                <div class="p-2 border-b">
+                  <div class="flex justify-between">
+                    <span>${test.network} - ${test.type}</span>
+                    <span class="text-sm">${formatDateShort(test.date)}</span>
+                  </div>
+                  <div class="text-sm">${test.result}</div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        ` : ''}
+        
+        <div class="flex justify-end">
+          <button type="button" onclick="closeDialog()" class="btn btn-outline">Close</button>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  showDialog(content);
+}
+
   render() {
     if (authManager.loading) {
       this.renderLoading();
@@ -583,90 +780,436 @@ class WASPAApp {
   }
 
    renderManagerOverview() {
-    return `
-      <div class="card animate-fade-in">
-        <div class="card-header">
-          <h2>Manager Overview</h2>
+  // Get users data (you might need to load this from your data manager)
+  const allUsers = authManager.users || [];
+  const managerUsers = allUsers.filter(user => user.isManager || user.role === 'manager');
+  const regularUsers = allUsers.filter(user => !user.isManager && user.role !== 'manager');
+  
+  return `
+    <div class="animate-fade-in">
+      <!-- Stats Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div class="stat-card">
+          <div class="stat-content">
+            <h3>${allUsers.length}</h3>
+            <p>Total Users</p>
+          </div>
         </div>
-        <div class="p-4">
-          <p>Manager overview content will go here.</p>
-          <p>This would include team stats, recent activity, etc.</p>
-          <div class="mt-4 p-3 bg-secondary rounded">
-            <h3 class="text-lg font-bold mb-2">Quick Stats:</h3>
-            <ul class="space-y-1">
-              <li>Total Users: ${authManager.users ? authManager.users.length : 'Loading...'}</li>
-              <li>Total Tests: ${dataManager.tests.length}</li>
-              <li>Total Warnings: ${dataManager.warnings.length}</li>
-              <li>Active Today: ${dataManager.getActiveUsersToday().length}</li>
-            </ul>
+        <div class="stat-card">
+          <div class="stat-content">
+            <h3>${dataManager.tests.length}</h3>
+            <p>All Tests</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-content">
+            <h3>${dataManager.warnings.length}</h3>
+            <p>All Warnings</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-content">
+            <h3>${dataManager.getActiveDays()}</h3>
+            <p>Active Days</p>
           </div>
         </div>
       </div>
-    `;
-  }
-
-  renderManagerExportTab() {
-    return `
-      <div class="card animate-fade-in">
+      
+      <!-- User Management Section -->
+      <div class="card">
         <div class="card-header">
-          <h2>Export Manager Reports</h2>
-        </div>
-        <div class="p-4">
-          <p>Export comprehensive reports for management.</p>
-          <div class="space-y-3 mt-4">
-            <button class="btn btn-primary w-full">Export All Test Data (CSV)</button>
-            <button class="btn btn-primary w-full">Export Warning Reports (PDF)</button>
-            <button class="btn btn-primary w-full">Export User Activity Logs</button>
-            <button class="btn btn-primary w-full">Generate Monthly Summary</button>
+          <h2>User Management</h2>
+          <div class="flex gap-2">
+            <input type="text" placeholder="Search by name or email..." class="search-input" id="user-search" />
+            <select class="select-input" id="role-filter">
+              <option value="all">All Roles</option>
+              <option value="manager">Managers</option>
+              <option value="user">Regular Users</option>
+            </select>
           </div>
         </div>
-      </div>
-    `;
-  }
-
-  renderAdminTab() {
-    return `
-      <div class="card animate-fade-in">
-        <div class="card-header">
-          <h2>Admin Controls</h2>
-        </div>
+        
         <div class="p-4">
-          <p>Administrative functions for managing the system.</p>
-          <div class="space-y-3 mt-4">
-            <button class="btn btn-destructive w-full">Reset All Test Data</button>
-            <button class="btn btn-destructive w-full">Clear All Warnings</button>
-            <button class="btn btn-secondary w-full">Manage User Permissions</button>
-            <button class="btn btn-secondary w-full">System Settings</button>
-          </div>
+          ${allUsers.length === 0 ? `
+            <div class="empty-state">
+              <div class="empty-icon">👤</div>
+              <p>No users found</p>
+            </div>
+          ` : `
+            <div class="space-y-3">
+              ${allUsers.map(user => `
+                <div class="user-card">
+                  <div class="flex items-center gap-3">
+                    <div class="user-avatar">
+                      ${user.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                    </div>
+                    <div class="flex-1">
+                      <h4 class="font-bold">${user.name || 'Unnamed User'}</h4>
+                      <p class="text-sm text-muted-foreground">${user.email}</p>
+                      <div class="flex items-center gap-2 mt-1">
+                        <span class="role-badge ${user.isManager ? 'manager' : 'user'}">
+                          ${user.isManager ? 'Manager' : 'User'}
+                        </span>
+                        <span class="text-xs text-muted-foreground">
+                          Last activity: ${user.lastLogin ? formatDateShort(user.lastLogin) : 'No activity'}
+                        </span>
+                      </div>
+                    </div>
+                    <div class="user-actions">
+                      <button class="btn btn-sm ${user.isManager ? 'btn-destructive' : 'btn-primary'}" 
+                              onclick="app.toggleUserRole('${user.id}', ${!user.isManager})">
+                        ${user.isManager ? 'Demote' : 'Promote'}
+                      </button>
+                      <button class="btn btn-sm btn-outline" onclick="app.viewUserDetails('${user.id}')">
+                        Details
+                      </button>
+                    </div>
+                  </div>
+                  <div class="user-stats mt-2 flex gap-4">
+                    <span>Tests: ${dataManager.tests.filter(t => t.userId === user.id).length}</span>
+                    <span>Warnings: ${dataManager.warnings.filter(w => w.userId === user.id).length}</span>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          `}
         </div>
       </div>
-    `;
-  }
+    </div>
+  `;
+}
 
-  renderUserStatsTab() {
-    return `
-      <div class="card animate-fade-in">
+renderUserStatsTab() {
+  // Calculate week and month dates
+  const today = new Date();
+  const weekStart = new Date(today);
+  weekStart.setDate(today.getDate() - today.getDay());
+  const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+  
+  // Format dates
+  const weekStartStr = weekStart.toISOString().split('T')[0];
+  const monthStartStr = monthStart.toISOString().split('T')[0];
+  const todayStr = today.toISOString().split('T')[0];
+  
+  // Filter data
+  const weekTests = dataManager.tests.filter(t => t.date >= weekStartStr && t.date <= todayStr);
+  const monthTests = dataManager.tests.filter(t => t.date >= monthStartStr && t.date <= todayStr);
+  
+  // Calculate complete vs partial tests
+  const weekComplete = weekTests.filter(t => t.result === 'Complete').length;
+  const weekPartial = weekTests.filter(t => t.result === 'Partial').length;
+  const monthComplete = monthTests.filter(t => t.result === 'Complete').length;
+  const monthPartial = monthTests.filter(t => t.result === 'Partial').length;
+  
+  // Network breakdown for current week
+  const networks = CONSTANTS.NETWORKS || ['MTN', 'Vodacom', 'Cell C', 'Telkom'];
+  const weekNetworkBreakdown = networks.map(network => {
+    const networkTests = weekTests.filter(t => t.network === network);
+    return {
+      network,
+      complete: networkTests.filter(t => t.result === 'Complete').length,
+      partial: networkTests.filter(t => t.result === 'Partial').length,
+      total: networkTests.length
+    };
+  });
+  
+  // Targets (you might want to store these in settings)
+  const weeklyTarget = { complete: 65, partial: 85, total: 150 };
+  const monthlyTarget = { complete: 260, partial: 340, total: 600 };
+  
+  return `
+    <div class="animate-fade-in">
+      <div class="card mb-6">
         <div class="card-header">
           <h2>User Statistics</h2>
+          <div class="flex items-center gap-2">
+            <select class="select-input" id="user-filter">
+              <option value="all">All Users (Organization)</option>
+              ${(authManager.users || []).map(user => `
+                <option value="${user.id}">${user.name} (${user.email})</option>
+              `).join('')}
+            </select>
+            <button class="btn btn-secondary">Configure Targets</button>
+          </div>
         </div>
+        
         <div class="p-4">
-          <p>Detailed statistics and analytics for users.</p>
-          <div class="mt-4 grid grid-cols-2 gap-4">
-            <div class="p-3 bg-secondary rounded">
-              <h3 class="font-bold">Performance</h3>
-              <p class="text-2xl mt-2">85%</p>
+          <!-- Quick Stats -->
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div class="p-4 bg-secondary rounded-lg">
+              <h3 class="text-sm font-medium mb-1">This Week Tests</h3>
+              <p class="text-2xl font-bold">${weekTests.length}</p>
+              <p class="text-sm text-muted-foreground mt-1">
+                ${weekComplete} complete, ${weekPartial} partial
+              </p>
             </div>
-            <div class="p-3 bg-secondary rounded">
-              <h3 class="font-bold">Completion Rate</h3>
-              <p class="text-2xl mt-2">92%</p>
+            <div class="p-4 bg-secondary rounded-lg">
+              <h3 class="text-sm font-medium mb-1">Week Performance</h3>
+              <p class="text-2xl font-bold">${weeklyTarget.total > 0 ? Math.round((weekTests.length / weeklyTarget.total) * 100) : 0}%</p>
+              <p class="text-sm text-muted-foreground mt-1">vs target of ${weeklyTarget.total}</p>
+            </div>
+            <div class="p-4 bg-secondary rounded-lg">
+              <h3 class="text-sm font-medium mb-1">This Month Tests</h3>
+              <p class="text-2xl font-bold">${monthTests.length}</p>
+              <p class="text-sm text-muted-foreground mt-1">
+                ${monthComplete} complete, ${monthPartial} partial
+              </p>
+            </div>
+            <div class="p-4 bg-secondary rounded-lg">
+              <h3 class="text-sm font-medium mb-1">Month Performance</h3>
+              <p class="text-2xl font-bold">${monthlyTarget.total > 0 ? Math.round((monthTests.length / monthlyTarget.total) * 100) : 0}%</p>
+              <p class="text-sm text-muted-foreground mt-1">vs target of ${monthlyTarget.total}</p>
+            </div>
+          </div>
+          
+          <!-- Week Breakdown -->
+          <div class="mb-6">
+            <h3 class="font-bold mb-3">Week ${getWeekNumber(today)} — Network Breakdown</h3>
+            <div class="overflow-x-auto">
+              <table class="w-full table-auto">
+                <thead>
+                  <tr class="bg-secondary">
+                    <th class="p-2 text-left">Network</th>
+                    <th class="p-2 text-center">Complete Tests</th>
+                    <th class="p-2 text-center">Partial Tests</th>
+                    <th class="p-2 text-center">Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${weekNetworkBreakdown.map(item => `
+                    <tr class="border-b">
+                      <td class="p-2">${item.network}</td>
+                      <td class="p-2 text-center">${item.complete}</td>
+                      <td class="p-2 text-center">${item.partial}</td>
+                      <td class="p-2 text-center font-bold">${item.total}</td>
+                    </tr>
+                  `).join('')}
+                  <tr class="bg-secondary font-bold">
+                    <td class="p-2">Week ${getWeekNumber(today)} Overall</td>
+                    <td class="p-2 text-center">${weekComplete}</td>
+                    <td class="p-2 text-center">${weekPartial}</td>
+                    <td class="p-2 text-center">${weekTests.length}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          
+          <!-- Target & Performance -->
+          <div>
+            <h3 class="font-bold mb-3">Target & Performance</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div class="p-4 bg-card rounded-lg border">
+                <h4 class="font-bold mb-2">Target</h4>
+                <p class="text-xl">Complete: ${weeklyTarget.complete}</p>
+                <p class="text-xl">Partial: ${weeklyTarget.partial}</p>
+                <p class="text-xl font-bold mt-2">Total: ${weeklyTarget.total}</p>
+              </div>
+              <div class="p-4 bg-card rounded-lg border">
+                <h4 class="font-bold mb-2">Actual</h4>
+                <p class="text-xl">Complete: ${weekComplete}</p>
+                <p class="text-xl">Partial: ${weekPartial}</p>
+                <p class="text-xl font-bold mt-2">Total: ${weekTests.length}</p>
+              </div>
+              <div class="p-4 bg-card rounded-lg border">
+                <h4 class="font-bold mb-2">Performance</h4>
+                <p class="text-xl">Complete: ${weeklyTarget.complete > 0 ? Math.round((weekComplete / weeklyTarget.complete) * 100) : 0}%</p>
+                <p class="text-xl">Partial: ${weeklyTarget.partial > 0 ? Math.round((weekPartial / weeklyTarget.partial) * 100) : 0}%</p>
+                <p class="text-xl font-bold mt-2">Overall: ${weeklyTarget.total > 0 ? Math.round((weekTests.length / weeklyTarget.total) * 100) : 0}%</p>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    `;
-  }
+    </div>
+  `;
+}
 
-  renderUploadTab() {
+renderManagerExportTab() {
+  const today = new Date();
+  const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+  const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+  
+  const formatDateForInput = (date) => {
+    return date.toISOString().split('T')[0].replace(/-/g, '/');
+  };
+  
+  return `
+    <div class="animate-fade-in">
+      <div class="card">
+        <div class="card-header">
+          <h2>Export User Data</h2>
+          <p class="text-muted-foreground">Export test and warning records across all users or filter by specific user</p>
+        </div>
+        
+        <div class="p-4">
+          <!-- Filter Options -->
+          <div class="mb-6">
+            <h3 class="font-bold mb-3">Filter Options</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div>
+                <label class="block mb-1">Select User</label>
+                <select class="select-input w-full" id="export-user">
+                  <option value="all">All Users</option>
+                  ${(authManager.users || []).map(user => `
+                    <option value="${user.id}">${user.name} (${user.email})</option>
+                  `).join('')}
+                </select>
+              </div>
+              <div>
+                <label class="block mb-1">From Date</label>
+                <input type="date" class="input w-full" id="export-from" value="${formatDateForInput(firstDay)}" />
+              </div>
+              <div>
+                <label class="block mb-1">To Date</label>
+                <input type="date" class="input w-full" id="export-to" value="${formatDateForInput(lastDay)}" />
+              </div>
+              <div>
+                <label class="block mb-1">Filter by Network</label>
+                <select class="select-input w-full" id="export-network">
+                  <option value="all">All Networks</option>
+                  ${CONSTANTS.NETWORKS.map(network => `
+                    <option value="${network}">${network}</option>
+                  `).join('')}
+                </select>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Export Cards -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div class="p-4 bg-secondary rounded-lg">
+              <h3 class="font-bold mb-2">Export All Tests</h3>
+              <p class="text-muted-foreground mb-3">${dataManager.tests.length} test records across all users</p>
+              <button class="btn btn-primary w-full" onclick="app.exportTests()">Export Tests</button>
+            </div>
+            <div class="p-4 bg-secondary rounded-lg">
+              <h3 class="font-bold mb-2">Export All Warnings</h3>
+              <p class="text-muted-foreground mb-3">${dataManager.warnings.length} warning records across all users</p>
+              <button class="btn btn-primary w-full" onclick="app.exportWarnings()">Export Warnings</button>
+            </div>
+            <div class="p-4 bg-secondary rounded-lg">
+              <h3 class="font-bold mb-2">Complete Report</h3>
+              <p class="text-muted-foreground mb-3">Full dataset with all records</p>
+              <button class="btn btn-primary w-full" onclick="app.exportAllData()">Export All</button>
+            </div>
+          </div>
+          
+          <!-- Export Summary -->
+          <div class="p-4 bg-card rounded-lg border">
+            <h3 class="font-bold mb-3">Export Summary</h3>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div class="text-center">
+                <h4 class="text-3xl font-bold">${dataManager.tests.length}</h4>
+                <p class="text-muted-foreground">Tests</p>
+              </div>
+              <div class="text-center">
+                <h4 class="text-3xl font-bold">${dataManager.warnings.length}</h4>
+                <p class="text-muted-foreground">Warnings</p>
+              </div>
+              <div class="text-center">
+                <h4 class="text-3xl font-bold">${authManager.users ? authManager.users.length : 1}</h4>
+                <p class="text-muted-foreground">Users</p>
+              </div>
+              <div class="text-center">
+                <h4 class="text-sm font-bold">${authManager.currentUser?.email || 'Unknown'}</h4>
+                <p class="text-muted-foreground">Exported By</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+renderAdminTab() {
+  return `
+    <div class="animate-fade-in">
+      <div class="card">
+        <div class="card-header">
+          <h2>User Management</h2>
+          <p class="text-muted-foreground">Promote users to manager role to give them access to all users data and reports</p>
+        </div>
+        
+        <div class="p-4">
+          <!-- Promote User Form -->
+          <div class="mb-6 p-4 bg-secondary rounded-lg">
+            <h3 class="font-bold mb-3">Promote User to Manager</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label class="block mb-1">User Email</label>
+                <select class="select-input w-full" id="promote-user">
+                  <option value="">Select User</option>
+                  ${(authManager.users || []).filter(user => !user.isManager).map(user => `
+                    <option value="${user.id}">${user.email}</option>
+                  `).join('')}
+                </select>
+              </div>
+              <div>
+                <label class="block mb-1">Action</label>
+                <select class="select-input w-full" id="promote-action">
+                  <option value="promote">Promote to Manager</option>
+                  <option value="demote">Demote to User</option>
+                </select>
+              </div>
+              <div class="flex items-end">
+                <button class="btn btn-primary w-full" onclick="app.updateUserRole()">Update Role</button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Users List -->
+          <div>
+            <h3 class="font-bold mb-3">All Users</h3>
+            <div class="overflow-x-auto">
+              <table class="w-full table-auto">
+                <thead>
+                  <tr class="bg-secondary">
+                    <th class="p-2 text-left">Name</th>
+                    <th class="p-2 text-left">Email</th>
+                    <th class="p-2 text-left">Role</th>
+                    <th class="p-2 text-left">Last Login</th>
+                    <th class="p-2 text-left">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${(authManager.users || []).map(user => `
+                    <tr class="border-b">
+                      <td class="p-2">${user.name || 'Unnamed'}</td>
+                      <td class="p-2">${user.email}</td>
+                      <td class="p-2">
+                        <span class="role-badge ${user.isManager ? 'manager' : 'user'}">
+                          ${user.isManager ? 'Manager' : 'User'}
+                        </span>
+                      </td>
+                      <td class="p-2">${user.lastLogin ? formatDateShort(user.lastLogin) : 'Never'}</td>
+                      <td class="p-2">
+                        <button class="btn btn-sm ${user.isManager ? 'btn-destructive' : 'btn-primary'}" 
+                                onclick="app.toggleUserRole('${user.id}', ${!user.isManager})">
+                          ${user.isManager ? 'Demote' : 'Promote'}
+                        </button>
+                      </td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// Add these helper functions if not already defined
+function getWeekNumber(date) {
+  const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
+  const pastDaysOfYear = (date - firstDayOfYear) / 86400000;
+  return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
+}
+  
+ renderUploadTab() {
   return `
     <div class="card animate-fade-in">
       <div class="card-header">
@@ -1059,5 +1602,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   await window.app.init();
 
 });
+
 
 
