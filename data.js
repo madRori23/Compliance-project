@@ -276,9 +276,43 @@ class DataManager {
     return dates.size;
   }
 
-   getActiveUsersToday() {
+     getActiveUsersToday() {
     const today = new Date().toISOString().split('T')[0];
-   }
+    
+    // Create a set to track unique active users
+    const activeUsers = new Set();
+    
+    // Check tests created today
+    const todayTests = this.tests.filter(test => test.date === today);
+    todayTests.forEach(test => {
+      if (test.createdBy) {
+        activeUsers.add(test.createdBy);
+      } else if (test.userId) {
+        activeUsers.add(test.userId);
+      }
+    });
+    
+    // Check warnings created today
+    const todayWarnings = this.warnings.filter(warning => warning.date === today);
+    todayWarnings.forEach(warning => {
+      if (warning.createdBy) {
+        activeUsers.add(warning.createdBy);
+      } else if (warning.userId) {
+        activeUsers.add(warning.userId);
+      }
+    });
+    
+    // If no specific user data, check recipients in warnings
+    if (activeUsers.size === 0) {
+      todayWarnings.forEach(warning => {
+        if (warning.recipient) {
+          activeUsers.add(warning.recipient);
+        }
+      });
+    }
+    
+    return Array.from(activeUsers);
+  }
 
   // Export functions
   exportToCSV(data, filename) {
@@ -308,4 +342,5 @@ class DataManager {
 // Create global data manager instance
 
 window.dataManager = new DataManager();
+
 
