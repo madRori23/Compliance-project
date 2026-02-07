@@ -258,4 +258,66 @@ label {
   font-size: 1.25rem;
   color: hsl(var(--muted-foreground));
   margin-bottom: 2rem;
+
+}
+
+/* Form styling improvements */
+.form-control {
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.input-group {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.input-group input {
+  flex: 1;
+}
+
+.input-group .btn {
+  flex-shrink: 0;
+}
+
+/* Checkbox and Radio buttons */
+input[type="checkbox"],
+input[type="radio"] {
+  width: auto;
+  margin-right: 0.5rem;
+}
+
+/* Required field indicator */
+.required::after {
+  content: " *";
+  color: hsl(var(--destructive));
+}
+
+/* Form validation styles */
+input:invalid,
+select:invalid,
+textarea:invalid {
+  border-color: hsl(var(--destructive));
+}
+
+input:valid,
+select:valid,
+textarea:valid {
+  border-color: hsl(var(--success));
+}
+
+/* Placeholder styling */
+::placeholder {
+  color: hsl(var(--muted-foreground));
+  opacity: 0.7;
+}
+
+:-ms-input-placeholder {
+  color: hsl(var(--muted-foreground));
+  opacity: 0.7;
+}
+
+::-ms-input-placeholder {
+  color: hsl(var(--muted-foreground));
+  opacity: 0.7;
 }
