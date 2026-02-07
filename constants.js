@@ -233,9 +233,10 @@ const CONSTANTS = {
     { id: "overview", label: "👥 Overview" },
     { id: "stats", label: "📊 User Stats" },
     { id: "export", label: "📦 Export User Data" },
-    { id: "admin", label: "⚙️ User Management" }
+    { id: "users", label: "⚙️ User Management" }
   ]
 };
 
 // Export to window
+
 window.CONSTANTS = CONSTANTS;
