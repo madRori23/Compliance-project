@@ -142,3 +142,4 @@ window.handleFirebaseError = (error) => {
     
     return message;
 };
+
