@@ -276,6 +276,9 @@ class DataManager {
     return dates.size;
   }
 
+   getActiveUsersToday() {
+    const today = new Date().toISOString().split('T')[0];
+
   // Export functions
   exportToCSV(data, filename) {
     if (data.length === 0) {
@@ -302,4 +305,5 @@ class DataManager {
 }
 
 // Create global data manager instance
+
 window.dataManager = new DataManager();
