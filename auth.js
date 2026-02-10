@@ -34,6 +34,34 @@ class AuthManager {
     }
   }
 
+  async loadUsers() {
+  if (!this.isManager()) {
+    console.log('Not a manager, skipping user load');
+    return;
+  }
+  
+  try {
+    console.log('Loading users from Firebase...');
+    
+    // Get users collection from Firebase
+    const usersSnapshot = await window.db.collection(window.COLLECTIONS.USERS).get();
+    
+    this.users = usersSnapshot.docs.map(doc => {
+      const userData = doc.data();
+      return {
+        id: doc.id,
+        name: userData.name || '',
+        email: userData.email || '',
+        role: userData.role || 'user',
+        isManager: userData.isManager || userData.role === 'manager' || false,
+        lastLogin: userData.lastLogin || null,
+        createdAt: userData.createdAt || null,
+        updatedAt: userData.updatedAt || null
+      };
+    });
+    
+    console.log(`Loaded ${this.users.length} users:`, this.users);
+
   async fetchUserData(userId) {
     try {
       const userDoc = await window.db.collection(window.COLLECTIONS.USERS).doc(userId).get();
@@ -135,3 +163,4 @@ class AuthManager {
 // Create global auth instance
 
 window.authManager = new AuthManager();
+
