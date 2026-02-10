@@ -4,6 +4,7 @@ class AuthManager {
     this.currentUser = null;
     this.isAuthenticated = false;
     this.loading = true;
+    this.users = [];
   }
 
   async init() {
@@ -132,4 +133,5 @@ class AuthManager {
 }
 
 // Create global auth instance
+
 window.authManager = new AuthManager();
