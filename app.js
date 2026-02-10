@@ -1259,7 +1259,10 @@ renderWarningsTab() {
           
           <div>
             <label>Recipient</label>
-            <input type="text" id="warning-recipient" placeholder="Enter recipient name" required />
+            <select id="warning-recipient" required>
+                  <option value="">Select Type</option>
+                  ${CONSTANTS.RECIPIENT_MEMBERS.map(m => `<option value="${m}">${m}</option>`).join('')}
+                </select>
           </div>
           
           <div>
@@ -1627,6 +1630,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   await window.app.init();
 
 });
+
 
 
 
