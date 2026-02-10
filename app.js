@@ -392,6 +392,18 @@ viewUserDetails(userId) {
     }
     
     const app = document.getElementById('app');
+
+    if (authManager.isManager() && (!authManager.users || authManager.users.length === 0)) {
+    console.log('Loading users for manager...');
+    try {
+      // Load users
+      await authManager.loadUsers();
+    } catch (error) {
+      console.error('Failed to load users:', error);
+      showToast('Failed to load users', 'error');
+      }
+    }
+    
     app.innerHTML = this.renderDashboard();
     
     // Load data if needed
@@ -1630,6 +1642,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   await window.app.init();
 
 });
+
 
 
 
