@@ -62,6 +62,12 @@ class AuthManager {
     
     console.log(`Loaded ${this.users.length} users:`, this.users);
 
+    } catch (error) {
+    console.error('Error loading users:', error);
+    showToast('Failed to load users', 'error');
+    this.users = [];
+  }
+}
   async fetchUserData(userId) {
     try {
       const userDoc = await window.db.collection(window.COLLECTIONS.USERS).doc(userId).get();
@@ -163,4 +169,5 @@ class AuthManager {
 // Create global auth instance
 
 window.authManager = new AuthManager();
+
 
