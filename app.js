@@ -8,7 +8,90 @@ class WASPAApp {
       editingTest: null,
       editingWarning: null
     };
-  }  
+  }
+
+  applyDateFilter() {
+  const startDate = document.getElementById('stats-start-date')?.value;
+  const endDate = document.getElementById('stats-end-date')?.value;
+  
+  // Validate dates
+  if (startDate && endDate && startDate > endDate) {
+    showToast('Start date cannot be after end date', 'error');
+    return;
+  }
+  
+  this.currentState.statsStartDate = startDate || '';
+  this.currentState.statsEndDate = endDate || '';
+  
+  this.render();
+}
+
+clearDateFilter() {
+  this.currentState.statsStartDate = '';
+  this.currentState.statsEndDate = '';
+  this.render();
+}
+
+configureTargets() {
+  showToast('Target configuration will be implemented soon', 'info');
+  // You can implement a dialog for configuring targets here
+}
+
+setDatePreset(preset) {
+  const today = new Date();
+  let startDate = '';
+  let endDate = today.toISOString().split('T')[0];
+  
+  switch (preset) {
+    case 'today':
+      startDate = endDate;
+      break;
+      
+    case 'yesterday':
+      const yesterday = new Date(today);
+      yesterday.setDate(today.getDate() - 1);
+      startDate = yesterday.toISOString().split('T')[0];
+      endDate = startDate;
+      break;
+      
+    case 'thisWeek':
+      const weekStart = new Date(today);
+      weekStart.setDate(today.getDate() - today.getDay());
+      startDate = weekStart.toISOString().split('T')[0];
+      break;
+      
+    case 'lastWeek':
+      const lastWeekStart = new Date(today);
+      lastWeekStart.setDate(today.getDate() - today.getDay() - 7);
+      const lastWeekEnd = new Date(lastWeekStart);
+      lastWeekEnd.setDate(lastWeekStart.getDate() + 6);
+      startDate = lastWeekStart.toISOString().split('T')[0];
+      endDate = lastWeekEnd.toISOString().split('T')[0];
+      break;
+      
+    case 'thisMonth':
+      const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+      startDate = monthStart.toISOString().split('T')[0];
+      break;
+      
+    case 'lastMonth':
+      const lastMonthStart = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+      const lastMonthEnd = new Date(today.getFullYear(), today.getMonth(), 0);
+      startDate = lastMonthStart.toISOString().split('T')[0];
+      endDate = lastMonthEnd.toISOString().split('T')[0];
+      break;
+      
+    case 'thisQuarter':
+      const quarter = Math.floor(today.getMonth() / 3);
+      const quarterStart = new Date(today.getFullYear(), quarter * 3, 1);
+      startDate = quarterStart.toISOString().split('T')[0];
+      break;
+  }
+  
+  this.currentState.statsStartDate = startDate;
+  this.currentState.statsEndDate = endDate;
+  this.render();
+}
 
   async init() {
     try {
@@ -892,6 +975,10 @@ viewUserDetails(userId) {
 }
 
 renderUserStatsTab() {
+  // Get date filter values from currentState or defaults
+  const filterStartDate = this.currentState.statsStartDate || '';
+  const filterEndDate = this.currentState.statsEndDate || '';
+  
   // Calculate week and month dates
   const today = new Date();
   const weekStart = new Date(today);
@@ -903,9 +990,20 @@ renderUserStatsTab() {
   const monthStartStr = monthStart.toISOString().split('T')[0];
   const todayStr = today.toISOString().split('T')[0];
   
-  // Filter data
-  const weekTests = dataManager.tests.filter(t => t.date >= weekStartStr && t.date <= todayStr);
-  const monthTests = dataManager.tests.filter(t => t.date >= monthStartStr && t.date <= todayStr);
+  // Filter data based on selected date range
+  let filteredTests = dataManager.tests;
+  
+  if (filterStartDate) {
+    filteredTests = filteredTests.filter(t => t.date >= filterStartDate);
+  }
+  
+  if (filterEndDate) {
+    filteredTests = filteredTests.filter(t => t.date <= filterEndDate);
+  }
+  
+  // Calculate week and month tests based on filtered data
+  const weekTests = filteredTests.filter(t => t.date >= weekStartStr && t.date <= todayStr);
+  const monthTests = filteredTests.filter(t => t.date >= monthStartStr && t.date <= todayStr);
   
   // Calculate complete vs partial tests
   const weekComplete = weekTests.filter(t => t.result === 'Complete').length;
@@ -913,10 +1011,10 @@ renderUserStatsTab() {
   const monthComplete = monthTests.filter(t => t.result === 'Complete').length;
   const monthPartial = monthTests.filter(t => t.result === 'Partial').length;
   
-  // Network breakdown for current week
+  // Network breakdown for filtered data
   const networks = CONSTANTS.NETWORKS || ['MTN', 'Vodacom', 'Cell C', 'Telkom'];
-  const weekNetworkBreakdown = networks.map(network => {
-    const networkTests = weekTests.filter(t => t.network === network);
+  const networkBreakdown = networks.map(network => {
+    const networkTests = filteredTests.filter(t => t.network === network);
     return {
       network,
       complete: networkTests.filter(t => t.result === 'Complete').length,
@@ -928,6 +1026,30 @@ renderUserStatsTab() {
   // Targets (you might want to store these in settings)
   const weeklyTarget = { complete: 65, partial: 85, total: 150 };
   const monthlyTarget = { complete: 260, partial: 340, total: 600 };
+  
+  // Calculate overall performance based on filtered data
+  const totalFilteredTests = filteredTests.length;
+  const totalComplete = filteredTests.filter(t => t.result === 'Complete').length;
+  const totalPartial = filteredTests.filter(t => t.result === 'Partial').length;
+  
+  // Calculate filtered target based on date range
+  let filteredTarget = { complete: 0, partial: 0, total: 0 };
+  
+  if (filterStartDate && filterEndDate) {
+    // For custom date range, use proportional targets
+    const daysInRange = Math.ceil((new Date(filterEndDate) - new Date(filterStartDate)) / (1000 * 60 * 60 * 24)) + 1;
+    const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+    const proportion = daysInRange / daysInMonth;
+    
+    filteredTarget = {
+      complete: Math.round(monthlyTarget.complete * proportion),
+      partial: Math.round(monthlyTarget.partial * proportion),
+      total: Math.round(monthlyTarget.total * proportion)
+    };
+  } else {
+    // Use monthly target if no filter or use appropriate target
+    filteredTarget = monthlyTarget;
+  }
   
   return `
     <div class="animate-fade-in">
@@ -941,13 +1063,64 @@ renderUserStatsTab() {
                 <option value="${user.id}">${user.name} (${user.email})</option>
               `).join('')}
             </select>
-            <button class="btn btn-secondary">Configure Targets</button>
+            <button class="btn btn-secondary" onclick="app.configureTargets()">Configure Targets</button>
           </div>
         </div>
         
         <div class="p-4">
+          <!-- Date Filter Section -->
+          <div class="mb-6 p-4 bg-secondary rounded-lg">
+            <h3 class="font-bold mb-3">Date Filter</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label class="block mb-1">From Date</label>
+                <input type="date" 
+                       id="stats-start-date" 
+                       class="input w-full" 
+                       value="${filterStartDate}"
+                       max="${todayStr}" />
+              </div>
+              <div>
+                <label class="block mb-1">To Date</label>
+                <input type="date" 
+                       id="stats-end-date" 
+                       class="input w-full" 
+                       value="${filterEndDate}"
+                       max="${todayStr}"
+                       min="${filterStartDate || ''}" />
+              </div>
+              <div class="flex items-end gap-2">
+                <button class="btn btn-primary flex-1" onclick="app.applyDateFilter()">
+                  Apply Filter
+                </button>
+                <button class="btn btn-outline" onclick="app.clearDateFilter()">
+                  Clear
+                </button>
+              </div>
+            </div>
+            <div class="mt-2 text-sm text-muted-foreground">
+              ${filterStartDate || filterEndDate 
+                ? `Filtering: ${filterStartDate || 'Start'} to ${filterEndDate || 'End'}`
+                : 'Showing all data (no date filter applied)'}
+            </div>
+          </div>
+          
           <!-- Quick Stats -->
           <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div class="p-4 bg-secondary rounded-lg">
+              <h3 class="text-sm font-medium mb-1">Filtered Tests</h3>
+              <p class="text-2xl font-bold">${totalFilteredTests}</p>
+              <p class="text-sm text-muted-foreground mt-1">
+                ${totalComplete} complete, ${totalPartial} partial
+              </p>
+            </div>
+            <div class="p-4 bg-secondary rounded-lg">
+              <h3 class="text-sm font-medium mb-1">Filtered Performance</h3>
+              <p class="text-2xl font-bold">${filteredTarget.total > 0 ? Math.round((totalFilteredTests / filteredTarget.total) * 100) : 0}%</p>
+              <p class="text-sm text-muted-foreground mt-1">
+                vs target of ${filteredTarget.total}
+              </p>
+            </div>
             <div class="p-4 bg-secondary rounded-lg">
               <h3 class="text-sm font-medium mb-1">This Week Tests</h3>
               <p class="text-2xl font-bold">${weekTests.length}</p>
@@ -960,23 +1133,15 @@ renderUserStatsTab() {
               <p class="text-2xl font-bold">${weeklyTarget.total > 0 ? Math.round((weekTests.length / weeklyTarget.total) * 100) : 0}%</p>
               <p class="text-sm text-muted-foreground mt-1">vs target of ${weeklyTarget.total}</p>
             </div>
-            <div class="p-4 bg-secondary rounded-lg">
-              <h3 class="text-sm font-medium mb-1">This Month Tests</h3>
-              <p class="text-2xl font-bold">${monthTests.length}</p>
-              <p class="text-sm text-muted-foreground mt-1">
-                ${monthComplete} complete, ${monthPartial} partial
-              </p>
-            </div>
-            <div class="p-4 bg-secondary rounded-lg">
-              <h3 class="text-sm font-medium mb-1">Month Performance</h3>
-              <p class="text-2xl font-bold">${monthlyTarget.total > 0 ? Math.round((monthTests.length / monthlyTarget.total) * 100) : 0}%</p>
-              <p class="text-sm text-muted-foreground mt-1">vs target of ${monthlyTarget.total}</p>
-            </div>
           </div>
           
-          <!-- Week Breakdown -->
+          <!-- Network Breakdown -->
           <div class="mb-6">
-            <h3 class="font-bold mb-3">Week ${getWeekNumber(today)} — Network Breakdown</h3>
+            <h3 class="font-bold mb-3">
+              ${filterStartDate || filterEndDate 
+                ? 'Filtered Data — Network Breakdown' 
+                : `Week ${getWeekNumber(today)} — Network Breakdown`}
+            </h3>
             <div class="overflow-x-auto">
               <table class="w-full table-auto">
                 <thead>
@@ -985,22 +1150,35 @@ renderUserStatsTab() {
                     <th class="p-2 text-center">Complete Tests</th>
                     <th class="p-2 text-center">Partial Tests</th>
                     <th class="p-2 text-center">Total</th>
+                    <th class="p-2 text-center">% of Total</th>
                   </tr>
                 </thead>
                 <tbody>
-                  ${weekNetworkBreakdown.map(item => `
-                    <tr class="border-b">
-                      <td class="p-2">${item.network}</td>
-                      <td class="p-2 text-center">${item.complete}</td>
-                      <td class="p-2 text-center">${item.partial}</td>
-                      <td class="p-2 text-center font-bold">${item.total}</td>
-                    </tr>
-                  `).join('')}
+                  ${networkBreakdown.map(item => {
+                    const percentage = totalFilteredTests > 0 ? Math.round((item.total / totalFilteredTests) * 100) : 0;
+                    return `
+                      <tr class="border-b">
+                        <td class="p-2">${item.network}</td>
+                        <td class="p-2 text-center">${item.complete}</td>
+                        <td class="p-2 text-center">${item.partial}</td>
+                        <td class="p-2 text-center font-bold">${item.total}</td>
+                        <td class="p-2 text-center">
+                          <div class="flex items-center justify-center gap-2">
+                            <div class="w-16 bg-gray-200 rounded-full h-2">
+                              <div class="bg-primary h-2 rounded-full" style="width: ${percentage}%"></div>
+                            </div>
+                            <span>${percentage}%</span>
+                          </div>
+                        </td>
+                      </tr>
+                    `;
+                  }).join('')}
                   <tr class="bg-secondary font-bold">
-                    <td class="p-2">Week ${getWeekNumber(today)} Overall</td>
-                    <td class="p-2 text-center">${weekComplete}</td>
-                    <td class="p-2 text-center">${weekPartial}</td>
-                    <td class="p-2 text-center">${weekTests.length}</td>
+                    <td class="p-2">Total</td>
+                    <td class="p-2 text-center">${totalComplete}</td>
+                    <td class="p-2 text-center">${totalPartial}</td>
+                    <td class="p-2 text-center">${totalFilteredTests}</td>
+                    <td class="p-2 text-center">100%</td>
                   </tr>
                 </tbody>
               </table>
@@ -1009,26 +1187,80 @@ renderUserStatsTab() {
           
           <!-- Target & Performance -->
           <div>
-            <h3 class="font-bold mb-3">Target & Performance</h3>
+            <h3 class="font-bold mb-3">
+              ${filterStartDate || filterEndDate 
+                ? 'Filtered Target & Performance' 
+                : 'Target & Performance'}
+            </h3>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div class="p-4 bg-card rounded-lg border">
                 <h4 class="font-bold mb-2">Target</h4>
-                <p class="text-xl">Complete: ${weeklyTarget.complete}</p>
-                <p class="text-xl">Partial: ${weeklyTarget.partial}</p>
-                <p class="text-xl font-bold mt-2">Total: ${weeklyTarget.total}</p>
+                <p class="text-xl">Complete: ${filteredTarget.complete}</p>
+                <p class="text-xl">Partial: ${filteredTarget.partial}</p>
+                <p class="text-xl font-bold mt-2">Total: ${filteredTarget.total}</p>
+                <div class="mt-2 text-sm text-muted-foreground">
+                  ${filterStartDate && filterEndDate 
+                    ? `Date range: ${formatDateShort(filterStartDate)} - ${formatDateShort(filterEndDate)}`
+                    : 'Monthly target'}
+                </div>
               </div>
               <div class="p-4 bg-card rounded-lg border">
                 <h4 class="font-bold mb-2">Actual</h4>
-                <p class="text-xl">Complete: ${weekComplete}</p>
-                <p class="text-xl">Partial: ${weekPartial}</p>
-                <p class="text-xl font-bold mt-2">Total: ${weekTests.length}</p>
+                <p class="text-xl">Complete: ${totalComplete}</p>
+                <p class="text-xl">Partial: ${totalPartial}</p>
+                <p class="text-xl font-bold mt-2">Total: ${totalFilteredTests}</p>
+                <div class="mt-2 text-sm text-muted-foreground">
+                  ${filterStartDate && filterEndDate 
+                    ? `${totalFilteredTests} tests in selected range`
+                    : `${totalFilteredTests} total tests`}
+                </div>
               </div>
               <div class="p-4 bg-card rounded-lg border">
                 <h4 class="font-bold mb-2">Performance</h4>
-                <p class="text-xl">Complete: ${weeklyTarget.complete > 0 ? Math.round((weekComplete / weeklyTarget.complete) * 100) : 0}%</p>
-                <p class="text-xl">Partial: ${weeklyTarget.partial > 0 ? Math.round((weekPartial / weeklyTarget.partial) * 100) : 0}%</p>
-                <p class="text-xl font-bold mt-2">Overall: ${weeklyTarget.total > 0 ? Math.round((weekTests.length / weeklyTarget.total) * 100) : 0}%</p>
+                <p class="text-xl ${totalComplete >= filteredTarget.complete ? 'text-success' : 'text-destructive'}">
+                  Complete: ${filteredTarget.complete > 0 ? Math.round((totalComplete / filteredTarget.complete) * 100) : 0}%
+                </p>
+                <p class="text-xl ${totalPartial >= filteredTarget.partial ? 'text-success' : 'text-destructive'}">
+                  Partial: ${filteredTarget.partial > 0 ? Math.round((totalPartial / filteredTarget.partial) * 100) : 0}%
+                </p>
+                <p class="text-xl font-bold mt-2 ${totalFilteredTests >= filteredTarget.total ? 'text-success' : 'text-destructive'}">
+                  Overall: ${filteredTarget.total > 0 ? Math.round((totalFilteredTests / filteredTarget.total) * 100) : 0}%
+                </p>
+                <div class="mt-2">
+                  <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div class="bg-primary h-2 rounded-full" 
+                         style="width: ${filteredTarget.total > 0 ? Math.min(Math.round((totalFilteredTests / filteredTarget.total) * 100), 100) : 0}%"></div>
+                  </div>
+                </div>
               </div>
+            </div>
+          </div>
+          
+          <!-- Quick Date Presets -->
+          <div class="mt-6 p-4 bg-secondary rounded-lg">
+            <h3 class="font-bold mb-3">Quick Date Presets</h3>
+            <div class="flex flex-wrap gap-2">
+              <button class="btn btn-outline btn-sm" onclick="app.setDatePreset('today')">
+                Today
+              </button>
+              <button class="btn btn-outline btn-sm" onclick="app.setDatePreset('yesterday')">
+                Yesterday
+              </button>
+              <button class="btn btn-outline btn-sm" onclick="app.setDatePreset('thisWeek')">
+                This Week
+              </button>
+              <button class="btn btn-outline btn-sm" onclick="app.setDatePreset('lastWeek')">
+                Last Week
+              </button>
+              <button class="btn btn-outline btn-sm" onclick="app.setDatePreset('thisMonth')">
+                This Month
+              </button>
+              <button class="btn btn-outline btn-sm" onclick="app.setDatePreset('lastMonth')">
+                Last Month
+              </button>
+              <button class="btn btn-outline btn-sm" onclick="app.setDatePreset('thisQuarter')">
+                This Quarter
+              </button>
             </div>
           </div>
         </div>
@@ -1642,6 +1874,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   await window.app.init();
 
 });
+
 
 
 
