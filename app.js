@@ -380,7 +380,7 @@ viewUserDetails(userId) {
   showDialog(content);
 }
 
-  render() {
+  async render() {
     if (authManager.loading) {
       this.renderLoading();
       return;
@@ -1642,6 +1642,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   await window.app.init();
 
 });
+
 
 
 
