@@ -309,7 +309,7 @@ async exportTests() {
       return;
     }
     
-    dataManager.exportToCSV(testsToExport, `tests_export_${new Date().toISOString().split('T')[0]}.csv`);
+    dataManager.exportToExcel(testsToExport, `tests_export_${new Date().toISOString().split('T')[0]}`);
   } catch (error) {
     showToast(`Export failed: ${error.message}`, 'error');
   }
@@ -341,7 +341,7 @@ async exportWarnings() {
       return;
     }
     
-    dataManager.exportToCSV(warningsToExport, `warnings_export_${new Date().toISOString().split('T')[0]}.csv`);
+    dataManager.exportToExcel(warningsToExport, `warnings_export_${new Date().toISOString().split('T')[0]}`);
   } catch (error) {
     showToast(`Export failed: ${error.message}`, 'error');
   }
@@ -388,9 +388,9 @@ async exportAllData() {
       return;
     }
     
-    dataManager.exportToCSV(
+    dataManager.exportToExcel(
       [...testsToExport, ...warningsToExport], 
-      `full_export_${new Date().toISOString().split('T')[0]}.csv`
+      `full_export_${new Date().toISOString().split('T')[0]}`
     );
   } catch (error) {
     showToast(`Export failed: ${error.message}`, 'error');
@@ -1601,14 +1601,14 @@ renderExportTab() {
       <div class="p-4">
         <p>Export your test and warning data for reporting.</p>
         <div class="space-y-3 mt-4">
-          <button class="btn btn-primary w-full" onclick="dataManager.exportTestsCSV()">
-            Export Test Data (CSV)
+          <button class="btn btn-primary w-full" onclick="app.exportTests()">
+            Export Test Data (Excel)
           </button>
-          <button class="btn btn-primary w-full" onclick="dataManager.exportWarningsCSV()">
-            Export Warning Data (CSV)
+          <button class="btn btn-primary w-full" onclick="app.exportWarnings()">
+            Export Warning Data (Excel)
           </button>
-          <button class="btn btn-primary w-full" onclick="dataManager.exportAllData()">
-            Export All Data (JSON)
+          <button class="btn btn-primary w-full" onclick="app.exportAllData()">
+            Export All Data (Excel)
           </button>
           <div class="export-options mt-6">
             <h3 class="font-bold mb-2">Date Range Export</h3>
@@ -1897,6 +1897,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   await window.app.init();
 
 });
+
 
 
 
