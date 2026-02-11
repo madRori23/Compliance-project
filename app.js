@@ -1006,10 +1006,10 @@ renderUserStatsTab() {
   const monthTests = filteredTests.filter(t => t.date >= monthStartStr && t.date <= todayStr);
   
   // Calculate complete vs partial tests
-  const weekComplete = weekTests.filter(t => t.result === 'Complete').length;
-  const weekPartial = weekTests.filter(t => t.result === 'Partial').length;
-  const monthComplete = monthTests.filter(t => t.result === 'Complete').length;
-  const monthPartial = monthTests.filter(t => t.result === 'Partial').length;
+  const weekComplete = weekTests.filter(t => t.type === 'Complete').length;
+  const weekPartial = weekTests.filter(t => t.type === 'Partial').length;
+  const monthComplete = monthTests.filter(t => t.type === 'Complete').length;
+  const monthPartial = monthTests.filter(t => t.type === 'Partial').length;
   
   // Network breakdown for filtered data
   const networks = CONSTANTS.NETWORKS || ['MTN', 'Vodacom', 'Cell C', 'Telkom'];
@@ -1017,8 +1017,8 @@ renderUserStatsTab() {
     const networkTests = filteredTests.filter(t => t.network === network);
     return {
       network,
-      complete: networkTests.filter(t => t.result === 'Complete').length,
-      partial: networkTests.filter(t => t.result === 'Partial').length,
+      complete: networkTests.filter(t => t.type === 'Complete').length,
+      partial: networkTests.filter(t => t.type === 'Partial').length,
       total: networkTests.length
     };
   });
@@ -1029,8 +1029,8 @@ renderUserStatsTab() {
   
   // Calculate overall performance based on filtered data
   const totalFilteredTests = filteredTests.length;
-  const totalComplete = filteredTests.filter(t => t.result === 'Complete').length;
-  const totalPartial = filteredTests.filter(t => t.result === 'Partial').length;
+  const totalComplete = filteredTests.filter(t => t.type === 'Complete').length;
+  const totalPartial = filteredTests.filter(t => t.type === 'Partial').length;
   
   // Calculate filtered target based on date range
   let filteredTarget = { complete: 0, partial: 0, total: 0 };
@@ -1874,6 +1874,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   await window.app.init();
 
 });
+
 
 
 
