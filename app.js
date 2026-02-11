@@ -1062,7 +1062,7 @@ renderUserStatsTab() {
   const workingDaysInMonth = countWorkingDays(firstDayOfMonth, lastDayOfMonth);
   
   // Use actual working days for proportion
-  const proportion = workingDaysInRange / workingDaysInMonth;
+  const proportion = Math.min(workingDaysInRange / workingDaysInMonth, 1);
   
   filteredTarget = {
     complete: Math.round(monthlyTarget.complete * proportion),
@@ -1897,6 +1897,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   await window.app.init();
 
 });
+
 
 
 
