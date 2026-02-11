@@ -1031,20 +1031,43 @@ renderUserStatsTab() {
   const totalFilteredTests = filteredTests.length;
   const totalComplete = filteredTests.filter(t => t.type === 'Complete').length;
   const totalPartial = filteredTests.filter(t => t.type === 'Partial').length;
+
+  function countWorkingDays(startDate, endDate) {
+  let count = 0;
+  const currentDate = new Date(startDate);
   
+  while (currentDate <= endDate) {
+    const dayOfWeek = currentDate.getDay();
+    if (dayOfWeek >= 1 && dayOfWeek <= 5) { // Monday to Friday
+      count++;
+    }
+    currentDate.setDate(currentDate.getDate() + 1);
+  }
+  
+  return count;
+}
   // Calculate filtered target based on date range
   let filteredTarget = { complete: 0, partial: 0, total: 0 };
   
   if (filterStartDate && filterEndDate) {
-    // For custom date range, use proportional targets
-    const daysInRange = Math.ceil((new Date(filterEndDate) - new Date(filterStartDate)) / (1000 * 60 * 60 * 24)) + 1;
-    const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
-    const proportion = daysInRange / daysInMonth;
-    
-    filteredTarget = {
-      complete: Math.round(monthlyTarget.complete * proportion),
-      partial: Math.round(monthlyTarget.partial * proportion),
-      total: Math.round(monthlyTarget.total * proportion)
+  const start = new Date(filterStartDate);
+  const end = new Date(filterEndDate);
+  
+  // Count working days in the selected range
+  const workingDaysInRange = countWorkingDays(start, end);
+  
+  // Get the current month's working days for context (optional)
+  const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+  const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+  const workingDaysInMonth = countWorkingDays(firstDayOfMonth, lastDayOfMonth);
+  
+  // Use actual working days for proportion
+  const proportion = workingDaysInRange / workingDaysInMonth;
+  
+  filteredTarget = {
+    complete: Math.round(monthlyTarget.complete * proportion),
+    partial: Math.round(monthlyTarget.partial * proportion),
+    total: Math.round(monthlyTarget.total * proportion)
     };
   } else {
     // Use monthly target if no filter or use appropriate target
@@ -1874,6 +1897,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   await window.app.init();
 
 });
+
 
 
 
