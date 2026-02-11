@@ -313,33 +313,52 @@ class DataManager {
   }
 
   // Export functions
-  exportToCSV(data, filename) {
-    if (data.length === 0) {
-      showToast('No data to export', 'error');
-      return;
-    }
-
-    const headers = Object.keys(data[0]);
-    const csv = [
-      headers.join(','),
-      ...data.map(row => headers.map(h => `"${(row[h] || '').replace(/"/g, '""')}"`).join(','))
-    ].join('\n');
-
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    a.click();
-    URL.revokeObjectURL(url);
-
-    showToast('Export completed!', 'success');
+  exportToExcel(data, filename) {
+  if (data.length === 0) {
+    showToast('No data to export', 'error');
+    return;
   }
-}
 
+  // Create worksheet data
+  const worksheetData = [
+    Object.keys(data[0]), // Headers
+    ...data.map(row => Object.values(row).map(value => {
+      if (value === null || value === undefined) return '';
+      if (value instanceof Date) return value.toLocaleDateString();
+      if (typeof value === 'object') return JSON.stringify(value);
+      return value;
+    }))
+  ];
+
+  // Create workbook
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.aoa_to_sheet(worksheetData);
+  
+  // Style the header row (optional)
+  ws['!cols'] = Object.keys(data[0]).map(() => ({ wch: 20 })); // Set column width
+  
+  XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+  
+  // Generate Excel file
+  const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+  const excelBlob = new Blob([excelBuffer], { 
+    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
+  });
+  
+  // Download file
+  const url = URL.createObjectURL(excelBlob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${filename}.xlsx`;
+  a.click();
+  URL.revokeObjectURL(url);
+
+  showToast('Export completed!', 'success');
+}
 // Create global data manager instance
 
 window.dataManager = new DataManager();
+
 
 
 
