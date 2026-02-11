@@ -14,7 +14,6 @@ class DataManager {
       // Load tests
       const testsSnapshot = await window.db.collection(window.COLLECTIONS.TESTS)
         .orderBy('date', 'desc')
-        .limit(50)
         .get();
       
       this.tests = testsSnapshot.docs.map(doc => ({
@@ -25,7 +24,6 @@ class DataManager {
       // Load warnings
       const warningsSnapshot = await window.db.collection(window.COLLECTIONS.WARNINGS)
         .orderBy('date', 'desc')
-        .limit(50)
         .get();
       
       this.warnings = warningsSnapshot.docs.map(doc => ({
@@ -342,5 +340,6 @@ class DataManager {
 // Create global data manager instance
 
 window.dataManager = new DataManager();
+
 
 
