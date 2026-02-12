@@ -710,10 +710,10 @@ viewUserDetails(userId) {
   }
 
   renderStatsSection() {
-    const testsToday = dataManager.getTestsToday().length;
-    const warningsToday = dataManager.getWarningsToday().length;
-    const totalTests = dataManager.tests.length;
-    const activeDays = dataManager.getActiveDays();
+    const testsToday = dataManager.getFilteredTestsToday().length;
+  const warningsToday = dataManager.getFilteredWarningsToday().length;
+  const totalTests = dataManager.getFilteredTotalTests();
+  const activeDays = dataManager.getFilteredActiveDays();
     
     return `
       <section class="stats-section">
@@ -776,6 +776,7 @@ viewUserDetails(userId) {
 
   renderTestsTab() {
     const today = new Date().toISOString().split('T')[0];
+    const userTests = dataManager.getFilteredTests();
     
     return `
       <div class="grid-2 animate-fade-in">
@@ -840,12 +841,12 @@ viewUserDetails(userId) {
           </div>
           
           <div class="max-h-500 overflow-y-auto">
-            ${dataManager.tests.length === 0 ? `
+            ${userTests.length === 0 ? `
               <div class="empty-state">
                 <div class="empty-icon">🧪</div>
                 <p>No tests recorded yet</p>
               </div>
-            ` : dataManager.tests.map(test => `
+            ` : userTests.map(test => `
               <div class="test-item">
                 <div class="item-header">
                   <span class="item-title">${test.network} - ${test.type} Test</span>
@@ -1512,6 +1513,7 @@ renderAdminTab() {
 
 renderWarningsTab() {
   const today = new Date().toISOString().split('T')[0];
+  const userWarnings = dataManager.getFilteredWarnings();
   
   return `
     <div class="grid-2 animate-fade-in">
@@ -1574,12 +1576,12 @@ renderWarningsTab() {
         </div>
         
         <div class="max-h-500 overflow-y-auto">
-          ${dataManager.warnings.length === 0 ? `
+          ${userWarnings.length === 0 ? `
             <div class="empty-state">
               <div class="empty-icon">⚠️</div>
               <p>No warnings recorded yet</p>
             </div>
-          ` : dataManager.warnings.map(warning => `
+          ` : userWarnings.map(warning => `
             <div class="warning-item">
               <div class="item-header">
                 <span class="item-title">${warning.type} - ${warning.recipient}</span>
@@ -1909,6 +1911,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   await window.app.init();
 
 });
+
 
 
 
