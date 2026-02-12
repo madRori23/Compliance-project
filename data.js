@@ -99,7 +99,7 @@ async loadInitialData() {
     
     var testsQuery = window.db.collection(window.COLLECTIONS.TESTS)
       .orderBy('date', 'desc')
-      .limit(50);
+      
     
     if (!authManager.isManager() && userId) {
       testsQuery = testsQuery.where('userId', '==', userId);
@@ -116,7 +116,7 @@ async loadInitialData() {
     // Load warnings
     var warningsQuery = window.db.collection(window.COLLECTIONS.WARNINGS)
       .orderBy('date', 'desc')
-      .limit(50);
+     
     
     if (!authManager.isManager() && userId) {
       warningsQuery = warningsQuery.where('userId', '==', userId);
@@ -777,6 +777,7 @@ document.addEventListener('DOMContentLoaded', function() {
     window.dataManager.init();
   }
 });
+
 
 
 
