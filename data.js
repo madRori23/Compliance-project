@@ -505,16 +505,23 @@ async exportAllData() {
   } finally {
     hideLoading();
   }
-}
 
 // Initialize global instance
-window.dataManager = new DataManager();
+let dataManager;
 
+try {
+    dataManager = new DataManager();
+    console.log('✅ DataManager instance created');
+} catch (error) {
+    console.error('❌ DataManager creation failed:', error);
+}
+}
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
   if (window.authManager?.isAuthenticated) {
     window.dataManager.init();
   }
 });
+
 
 
