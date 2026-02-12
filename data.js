@@ -28,7 +28,6 @@ class DataManager {
 
     let query = window.db.collection(window.COLLECTIONS.TESTS)
       .orderBy('date', 'desc')
-      
 
     // Non-managers can only see their own tests
     if (!authManager.isManager()) {
@@ -81,6 +80,7 @@ class DataManager {
       }
     );
   }
+}
 
     try {
     console.log('Loading initial data...');
@@ -777,6 +777,7 @@ document.addEventListener('DOMContentLoaded', function() {
     window.dataManager.init();
   }
 });
+
 
 
 
