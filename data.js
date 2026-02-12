@@ -518,12 +518,6 @@ try {
 }
   
 }
-// Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
-  if (window.authManager?.isAuthenticated) {
-    window.dataManager.init();
-  }
-});
 
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
@@ -531,6 +525,7 @@ document.addEventListener('DOMContentLoaded', function() {
     window.dataManager.init();
   }
 });
+
 
 
 
