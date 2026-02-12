@@ -204,6 +204,193 @@ class DataManager {
     }
   }
 
+    getTestsToday() {
+    var today = new Date().toISOString().split('T')[0];
+    return this.tests.filter(function(test) {
+      return test.date === today;
+    });
+  }
+
+  getWarningsToday() {
+    const today = new Date().toISOString().split('T')[0];
+    return this.warnings.filter(function(warning) {
+      return warning.date === today;
+    });
+  }
+
+  getActiveDays() {
+    const uniqueDates = new Set();
+    this.tests.forEach(function(test) {
+      if (test.date) uniqueDates.add(test.date);
+    });
+    this.warnings.forEach(function(warning) {
+      if (warning.date) uniqueDates.add(warning.date);
+    });
+    return uniqueDates.size;
+  }
+
+  getUserStats(userId) {
+    const userTests = this.tests.filter(function(test) {
+      return test.userId === userId;
+    });
+    
+    const userWarnings = this.warnings.filter(function(warning) {
+      return warning.userId === userId;
+    });
+    
+    const completeTests = userTests.filter(function(test) {
+      return test.type === 'Complete' || test.result === 'Complete' || test.result === 'Compliant';
+    }).length;
+    
+    const partialTests = userTests.filter(function(test) {
+      return test.type === 'Partial' || test.result === 'Partial';
+    }).length;
+    
+    return {
+      totalTests: userTests.length,
+      totalWarnings: userWarnings.length,
+      completeTests: completeTests,
+      partialTests: partialTests,
+      nonCompliantTests: userTests.length - completeTests - partialTests
+    };
+  }
+
+  getNetworkBreakdown() {
+    const networks = {};
+    this.tests.forEach(function(test) {
+      const network = test.network || 'Unknown';
+      networks[network] = (networks[network] || 0) + 1;
+    });
+    return networks;
+  }
+
+  getWarningTypeBreakdown() {
+    const types = {};
+    this.warnings.forEach(function(warning) {
+      const type = warning.type || 'Unknown';
+      types[type] = (types[type] || 0) + 1;
+    });
+    return types;
+  }
+
+  getDateRangeData(startDate, endDate) {
+    const filteredTests = this.tests.filter(function(test) {
+      return test.date >= startDate && test.date <= endDate;
+    });
+    
+    const filteredWarnings = this.warnings.filter(function(warning) {
+      return warning.date >= startDate && warning.date <= endDate;
+    });
+    
+    return {
+      tests: filteredTests,
+      warnings: filteredWarnings,
+      totalTests: filteredTests.length,
+      totalWarnings: filteredWarnings.length
+    };
+  }
+
+  // ============ FORMATTING FUNCTIONS FOR EXPORT (RE-ADDED) ============
+
+  formatTestsForExport(tests) {
+    return tests.map(function(test) {
+      return {
+        'Date': test.date || '',
+        'Type': test.type || '',
+        'Network': test.network || '',
+        'Description': (test.description || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim(),
+        'Result': test.result || '',
+        'File Link': test.fileLink || '',
+        'Created By': test.createdBy || '',
+        'Created At': test.createdAt ? formatTimestamp(test.createdAt) : ''
+      };
+    });
+  }
+
+  formatWarningsForExport(warnings) {
+    return warnings.map(function(warning) {
+      return {
+        'Date': warning.date || '',
+        'Warning Type': warning.type || '',
+        'Recipient': warning.recipient || '',
+        'Reference': warning.reference || '',
+        'Details': (warning.details || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim(),
+        'Problem Areas': (warning.problemAreas || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim(),
+        'Created By': warning.createdBy || '',
+        'Created At': warning.createdAt ? formatTimestamp(warning.createdAt) : ''
+      };
+    });
+  }
+
+  createSummaryData(tests, warnings) {
+    const totalTests = tests.length;
+    const totalWarnings = warnings.length;
+    
+    const completeTests = tests.filter(function(t) {
+      return t.type === 'Complete' || t.result === 'Complete' || t.result === 'Compliant';
+    }).length;
+    
+    const partialTests = tests.filter(function(t) {
+      return t.type === 'Partial' || t.result === 'Partial';
+    }).length;
+    
+    const nonCompliantTests = tests.filter(function(t) {
+      return t.result === 'Non-compliant' || t.result === 'Failed';
+    }).length;
+    
+    const uniqueUsers = new Set();
+    tests.forEach(function(t) { if (t.userId) uniqueUsers.add(t.userId); });
+    warnings.forEach(function(w) { if (w.userId) uniqueUsers.add(w.userId); });
+    
+    const allDates = [];
+    tests.forEach(function(t) { if (t.date) allDates.push(t.date); });
+    warnings.forEach(function(w) { if (w.date) allDates.push(w.date); });
+    allDates.sort();
+    
+    const earliestDate = allDates.length ? allDates[0] : 'N/A';
+    const latestDate = allDates.length ? allDates[allDates.length - 1] : 'N/A';
+    
+    const summary = [
+      { 'Metric': 'Report Generated', 'Value': new Date().toLocaleString() },
+      { 'Metric': 'Total Tests', 'Value': totalTests },
+      { 'Metric': 'Total Warnings', 'Value': totalWarnings },
+      { 'Metric': 'Complete Tests', 'Value': completeTests },
+      { 'Metric': 'Partial Tests', 'Value': partialTests },
+      { 'Metric': 'Non-Compliant Tests', 'Value': nonCompliantTests },
+      { 'Metric': 'Unique Users', 'Value': uniqueUsers.size },
+      { 'Metric': 'Date Range', 'Value': earliestDate + ' to ' + latestDate },
+      { 'Metric': '', 'Value': '' },
+      { 'Metric': 'NETWORK BREAKDOWN', 'Value': '' }
+    ];
+    
+    // Add network breakdown
+    const networks = {};
+    tests.forEach(function(test) {
+      const network = test.network || 'Unknown';
+      networks[network] = (networks[network] || 0) + 1;
+    });
+    
+    Object.keys(networks).sort().forEach(function(network) {
+      summary.push({ 'Metric': '  ' + network, 'Value': networks[network] });
+    });
+    
+    summary.push({ 'Metric': '', 'Value': '' });
+    summary.push({ 'Metric': 'WARNING TYPES', 'Value': '' });
+    
+    // Add warning type breakdown
+    const types = {};
+    warnings.forEach(function(warning) {
+      const type = warning.type || 'Unknown';
+      types[type] = (types[type] || 0) + 1;
+    });
+    
+    Object.keys(types).sort().forEach(function(type) {
+      summary.push({ 'Metric': '  ' + type, 'Value': types[type] });
+    });
+    
+    return summary;
+  }
+
   // ============ UTILITY FUNCTIONS ============
 
   subscribe(listener) {
@@ -527,6 +714,7 @@ document.addEventListener('DOMContentLoaded', function() {
     window.dataManager.init();
   }
 });
+
 
 
 
