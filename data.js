@@ -313,53 +313,147 @@ class DataManager {
   }
 
   // Export functions
-  exportToExcel(data, filename) {
-  if (data.length === 0) {
-    showToast('No data to export', 'error');
-    return;
-  }
+  async exportTests() {
+        try {
+            showLoading();
+            
+            const tests = dataManager.getTests();
+            
+            if (tests.length === 0) {
+                this.showExportError('No test records found to export.');
+                return;
+            }
+    
+            const worksheet = XLSX.utils.json_to_sheet(this.formatTestsForExport(tests));
+            const workbook = XLSX.utils.book_new();
+            
+            // Set column widths - updated to include file link column
+            const colWidths = [
+                { wch: 12 }, // Date
+                { wch: 15 }, // Type
+                { wch: 10 }, // Network
+                { wch: 40 }, // Description
+                { wch: 15 }, // Result
+                { wch: 50 }, // File Link (NEW)
+                { wch: 20 }, // Created By
+                { wch: 20 }  // Created At
+            ];
+            worksheet['!cols'] = colWidths;
+    
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Tests");
+            XLSX.writeFile(workbook, `WASPA_Tests_${this.getCurrentDate()}.xlsx`);
+            
+            this.recordExport();
+            this.showExportSuccess(`${tests.length} test records exported successfully!`);
+        } catch (error) {
+            console.error('Error exporting tests:', error);
+            this.showExportError('Failed to export tests. Please try again.');
+        } finally {
+            hideLoading();
+        }
+    }
 
-  // Create worksheet data
-  const worksheetData = [
-    Object.keys(data[0]), // Headers
-    ...data.map(row => Object.values(row).map(value => {
-      if (value === null || value === undefined) return '';
-      if (value instanceof Date) return value.toLocaleDateString();
-      if (typeof value === 'object') return JSON.stringify(value);
-      return value;
-    }))
-  ];
+    async exportWarnings() {
+        try {
+            showLoading();
+            
+            const warnings = dataManager.getWarnings();
+            
+            if (warnings.length === 0) {
+                this.showExportError('No warning records found to export.');
+                return;
+            }
 
-  // Create workbook
-  const wb = XLSX.utils.book_new();
-  const ws = XLSX.utils.aoa_to_sheet(worksheetData);
-  
-  // Style the header row (optional)
-  ws['!cols'] = Object.keys(data[0]).map(() => ({ wch: 20 })); // Set column width
-  
-  XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
-  
-  // Generate Excel file
-  const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-  const excelBlob = new Blob([excelBuffer], { 
-    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
-  });
-  
-  // Download file
-  const url = URL.createObjectURL(excelBlob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `${filename}.xlsx`;
-  a.click();
-  URL.revokeObjectURL(url);
+            const worksheet = XLSX.utils.json_to_sheet(this.formatWarningsForExport(warnings));
+            const workbook = XLSX.utils.book_new();
+            
+            // Set column widths for warnings
+            const colWidths = [
+                { wch: 12 }, // Date
+                { wch: 20 }, // Warning Type
+                { wch: 30 }, // Recipient
+                { wch: 15 }, // Reference
+                { wch: 50 }, // Details
+                { wch: 50 }, // Problem Areas
+                { wch: 20 }, // Created By
+                { wch: 20 }  // Created At
+            ];
+            worksheet['!cols'] = colWidths;
 
-  showToast('Export completed!', 'success');
-}
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Warnings");
+            XLSX.writeFile(workbook, `WASPA_Warnings_${this.getCurrentDate()}.xlsx`);
+            
+            this.recordExport();
+            this.showExportSuccess(`${warnings.length} warning records exported successfully!`);
+        } catch (error) {
+            console.error('Error exporting warnings:', error);
+            this.showExportError('Failed to export warnings. Please try again.');
+        } finally {
+            hideLoading();
+        }
+    }
+
+    async exportAllData() {
+        try {
+            showLoading();
+            
+            const tests = dataManager.getTests();
+            const warnings = dataManager.getWarnings();
+
+            if (tests.length === 0 && warnings.length === 0) {
+                this.showExportError('No data found to export.');
+                return;
+            }
+
+            const workbook = XLSX.utils.book_new();
+            
+            // Tests sheet
+            if (tests.length > 0) {
+                const testsWorksheet = XLSX.utils.json_to_sheet(this.formatTestsForExport(tests));
+                testsWorksheet['!cols'] = [
+                    { wch: 12 }, { wch: 15 }, { wch: 10 }, 
+                    { wch: 40 }, { wch: 15 }, { wch: 50 }, // Added column for file link
+                    { wch: 20 }, { wch: 20 }
+                ];
+                XLSX.utils.book_append_sheet(workbook, testsWorksheet, "Tests");
+            }
+            
+            // Warnings sheet
+            if (warnings.length > 0) {
+                const warningsWorksheet = XLSX.utils.json_to_sheet(this.formatWarningsForExport(warnings));
+                warningsWorksheet['!cols'] = [
+                    { wch: 12 }, { wch: 20 }, { wch: 30 }, 
+                    { wch: 15 }, { wch: 50 }, { wch: 50 }, 
+                    { wch: 20 }, { wch: 20 }
+                ];
+                XLSX.utils.book_append_sheet(workbook, warningsWorksheet, "Warnings");
+            }
+            
+            // Summary sheet
+            const summaryData = this.createSummaryData(tests, warnings);
+            const summaryWorksheet = XLSX.utils.json_to_sheet(summaryData);
+            summaryWorksheet['!cols'] = [
+                { wch: 25 }, { wch: 25 }
+            ];
+            XLSX.utils.book_append_sheet(workbook, summaryWorksheet, "Summary");
+
+            XLSX.writeFile(workbook, `WASPA_Complete_Report_${this.getCurrentDate()}.xlsx`);
+            
+            this.recordExport();
+            this.showExportSuccess('Complete report exported successfully!');
+        } catch (error) {
+            console.error('Error exporting all data:', error);
+            this.showExportError('Failed to export data. Please try again.');
+        } finally {
+            hideLoading();
+        }
+    }
 
 }
 // Create global data manager instance
 
 window.dataManager = new DataManager();
+
 
 
 
