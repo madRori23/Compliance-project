@@ -1474,26 +1474,38 @@ renderAdminTab() {
   return `
     <div class="card animate-fade-in">
       <div class="card-header">
-        <h2>Upload Documents</h2>
-      </div>
-      <div class="p-4">
-        <p>Upload test documents, certifications, or other files.</p>
-        <div class="mt-6 space-y-4">
-          <div class="upload-area">
-            <div class="upload-content">
-              <span class="upload-icon">📁</span>
-              <p class="upload-text">Drag & drop files here</p>
-              <p class="upload-subtext">or click to browse</p>
-              <input type="file" class="upload-input" multiple />
+        <h2>Upload Manual Tests To Drive</h2>
+        <div class="upload-section">
+            <h3>Connect to Google Drive</h3>
+            <p>Login to your Google Drive account to upload manual test video recordings.</p>
+            <a href="https://drive.google.com" target="_blank" class="btn btn-primary google-drive-btn">
+                <span class="btn-icon"><i class="fab fa-google-drive"></i></span>
+                Login to Google Drive
+            </a>
+            <div class="upload-instructions">
+                <h4>Upload Instructions:</h4>
+                <ol>
+                    <li>Click the "Login to Google Drive" button above</li>
+                    <li>Sign in with your WASPA Google account</li>
+                    <li>Upload your manual test video recordings to the appropriate folder</li>
+                    <li>Ensure video files are named according to WASPA naming conventions:
+                        <ul>
+                            <li><strong>Format:</strong> testtype_network_servicename_date.mp4</li>
+                            <li><strong>Test Type Codes:</strong>
+                                <ul>
+                                    <li><code>ct</code> - Complete test</li>
+                                    <li><code>pt</code> - Partial test</li>
+                                </ul>
+                            </li>
+                            <li><strong>Example:</strong> <code>ct_mtn_playvod_30.10.2024.mp4</code></li>
+                            <li><strong>Example:</strong> <code>pt_vodacom_hooperstv_15.11.2024.mp4</code></li>
+                        </ul>
+                    </li>
+                    <li>Supported video formats: MP4, MOV, AVI, WMV</li>
+                    <li>Maximum file size: 2GB per video</li>
+                </ol>
             </div>
-          </div>
-          <div class="text-sm text-muted-foreground">
-            <p>• Supported formats: PDF, DOC, DOCX, XLS, XLSX, JPG, PNG</p>
-            <p>• Max file size: 10MB per file</p>
-          </div>
-          <button class="btn btn-primary w-full">Upload Selected Files</button>
         </div>
-      </div>
     </div>
   `;
 }
@@ -1897,6 +1909,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   await window.app.init();
 
 });
+
 
 
 
