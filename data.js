@@ -506,6 +506,8 @@ async exportAllData() {
     hideLoading();
   }
 
+}
+
 
 // Initialize global instance
 let dataManager;
@@ -525,4 +527,5 @@ document.addEventListener('DOMContentLoaded', function() {
     window.dataManager.init();
   }
 });
+
 
