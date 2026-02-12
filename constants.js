@@ -224,7 +224,7 @@ const CONSTANTS = {
 
   USER_TABS: [
     { id: "tests", label: "Manual Tests" },
-    { id: "upload", label: "Google Drive Uppload" },
+    { id: "upload", label: "Google Drive Upload" },
     { id: "warnings", label: "Email Warnings" },
     { id: "export", label: "Export Data" }
   ],
@@ -240,4 +240,5 @@ const CONSTANTS = {
 // Export to window
 
 window.CONSTANTS = CONSTANTS;
+
 
