@@ -309,7 +309,7 @@ async exportTests() {
       return;
     }
     
-    dataManager.exportToExcel(testsToExport, `tests_export_${new Date().toISOString().split('T')[0]}`);
+    dataManager.exportTests(testsToExport, `tests_export_${new Date().toISOString().split('T')[0]}`);
   } catch (error) {
     showToast(`Export failed: ${error.message}`, 'error');
   }
@@ -341,7 +341,7 @@ async exportWarnings() {
       return;
     }
     
-    dataManager.exportToExcel(warningsToExport, `warnings_export_${new Date().toISOString().split('T')[0]}`);
+    dataManager.exportWarnings(warningsToExport, `warnings_export_${new Date().toISOString().split('T')[0]}`);
   } catch (error) {
     showToast(`Export failed: ${error.message}`, 'error');
   }
@@ -388,7 +388,7 @@ async exportAllData() {
       return;
     }
     
-    dataManager.exportToExcel(
+    dataManager.exportAllData(
       [...testsToExport, ...warningsToExport], 
       `full_export_${new Date().toISOString().split('T')[0]}`
     );
@@ -1348,17 +1348,17 @@ renderManagerExportTab() {
             <div class="p-4 bg-secondary rounded-lg">
               <h3 class="font-bold mb-2">Export All Tests</h3>
               <p class="text-muted-foreground mb-3">${dataManager.tests.length} test records across all users</p>
-              <button class="btn btn-primary w-full" onclick="dataManager.exportTests()">Export Tests</button>
+              <button class="btn btn-primary w-full" onclick="app.exportTests()">Export Tests</button>
             </div>
             <div class="p-4 bg-secondary rounded-lg">
               <h3 class="font-bold mb-2">Export All Warnings</h3>
               <p class="text-muted-foreground mb-3">${dataManager.warnings.length} warning records across all users</p>
-              <button class="btn btn-primary w-full" onclick="dataManager.exportWarnings()">Export Warnings</button>
+              <button class="btn btn-primary w-full" onclick="app.exportWarnings()">Export Warnings</button>
             </div>
             <div class="p-4 bg-secondary rounded-lg">
               <h3 class="font-bold mb-2">Complete Report</h3>
               <p class="text-muted-foreground mb-3">Full dataset with all records</p>
-              <button class="btn btn-primary w-full" onclick="dataManager.exportAllData()">Export All</button>
+              <button class="btn btn-primary w-full" onclick="app.exportAllData()">Export All</button>
             </div>
           </div>
           
@@ -1601,13 +1601,13 @@ renderExportTab() {
       <div class="p-4">
         <p>Export your test and warning data for reporting.</p>
         <div class="space-y-3 mt-4">
-          <button class="btn btn-primary w-full" onclick="dataManager.exportTests()">
+          <button class="btn btn-primary w-full" onclick="app.exportTests()">
             Export Test Data (Excel)
           </button>
-          <button class="btn btn-primary w-full" onclick="dataManager.exportWarnings()">
+          <button class="btn btn-primary w-full" onclick="app.exportWarnings()">
             Export Warning Data (Excel)
           </button>
-          <button class="btn btn-primary w-full" onclick="dataManager.exportAllData()">
+          <button class="btn btn-primary w-full" onclick="app.exportAllData()">
             Export All Data (Excel)
           </button>
           <div class="export-options mt-6">
@@ -1897,6 +1897,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   await window.app.init();
 
 });
+
 
 
 
