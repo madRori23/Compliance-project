@@ -28,7 +28,7 @@ class DataManager {
 
     let query = window.db.collection(window.COLLECTIONS.TESTS)
       .orderBy('date', 'desc')
-      .limit(100);
+      
 
     // Non-managers can only see their own tests
     if (!authManager.isManager()) {
@@ -60,7 +60,7 @@ class DataManager {
 
     let query = window.db.collection(window.COLLECTIONS.WARNINGS)
       .orderBy('date', 'desc')
-      .limit(100);
+      
 
     // Non-managers can only see their own warnings
     if (!authManager.isManager()) {
@@ -233,7 +233,7 @@ class DataManager {
       this.unsubscribeWarnings();
     }
   }
-}
+
 
 // ============ EXPORT FUNCTIONS ============
 formatTestsForExport(tests) {
@@ -516,3 +516,4 @@ document.addEventListener('DOMContentLoaded', () => {
     window.dataManager.init();
   }
 });
+
