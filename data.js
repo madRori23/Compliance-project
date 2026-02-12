@@ -145,6 +145,82 @@ async loadInitialData() {
   }
 }
 
+  getFilteredTests() {
+  // If manager, return all tests
+  if (authManager && authManager.isManager()) {
+    return this.tests;
+  }
+  
+  // If regular user, return only their tests
+  var userId = null;
+  if (authManager && authManager.currentUser) {
+    userId = authManager.currentUser.uid;
+  }
+  
+  return this.tests.filter(function(test) {
+    return test.userId === userId;
+  });
+}
+
+getFilteredWarnings() {
+  // If manager, return all warnings
+  if (authManager && authManager.isManager()) {
+    return this.warnings;
+  }
+  
+  // If regular user, return only their warnings
+  var userId = null;
+  if (authManager && authManager.currentUser) {
+    userId = authManager.currentUser.uid;
+  }
+  
+  return this.warnings.filter(function(warning) {
+    return warning.userId === userId;
+  });
+}
+
+getFilteredTestsToday() {
+  var today = new Date().toISOString().split('T')[0];
+  var filteredTests = this.getFilteredTests();
+  
+  return filteredTests.filter(function(test) {
+    return test.date === today;
+  });
+}
+
+getFilteredWarningsToday() {
+  var today = new Date().toISOString().split('T')[0];
+  var filteredWarnings = this.getFilteredWarnings();
+  
+  return filteredWarnings.filter(function(warning) {
+    return warning.date === today;
+  });
+}
+
+getFilteredActiveDays() {
+  var uniqueDates = new Set();
+  var filteredTests = this.getFilteredTests();
+  var filteredWarnings = this.getFilteredWarnings();
+  
+  filteredTests.forEach(function(test) {
+    if (test.date) uniqueDates.add(test.date);
+  });
+  
+  filteredWarnings.forEach(function(warning) {
+    if (warning.date) uniqueDates.add(warning.date);
+  });
+  
+  return uniqueDates.size;
+}
+
+getFilteredTotalTests() {
+  return this.getFilteredTests().length;
+}
+
+getFilteredTotalWarnings() {
+  return this.getFilteredWarnings().length;
+}
+
   // ============ CRUD OPERATIONS - TESTS ============
 
   async addTest(testData) {
@@ -777,6 +853,7 @@ document.addEventListener('DOMContentLoaded', function() {
     window.dataManager.init();
   }
 });
+
 
 
 
