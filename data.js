@@ -82,8 +82,7 @@ class DataManager {
     );
   }
 
-  async loadInitialData() {
-  try {
+    try {
     console.log('Loading initial data...');
     
     // Check if we already have data
@@ -93,20 +92,20 @@ class DataManager {
     }
     
     // Load tests
-    const userId = null;
+    var userId = null;
     if (authManager && authManager.currentUser) {
       userId = authManager.currentUser.uid;
     }
     
-    const testsQuery = window.db.collection(window.COLLECTIONS.TESTS)
+    var testsQuery = window.db.collection(window.COLLECTIONS.TESTS)
       .orderBy('date', 'desc')
-      
+      .limit(50);
     
     if (!authManager.isManager() && userId) {
       testsQuery = testsQuery.where('userId', '==', userId);
     }
     
-    const testsSnapshot = await testsQuery.get();
+    var testsSnapshot = await testsQuery.get();
     this.tests = testsSnapshot.docs.map(function(doc) {
       return {
         id: doc.id,
@@ -115,15 +114,15 @@ class DataManager {
     });
     
     // Load warnings
-    const warningsQuery = window.db.collection(window.COLLECTIONS.WARNINGS)
+    var warningsQuery = window.db.collection(window.COLLECTIONS.WARNINGS)
       .orderBy('date', 'desc')
-      
+      .limit(50);
     
     if (!authManager.isManager() && userId) {
       warningsQuery = warningsQuery.where('userId', '==', userId);
     }
     
-    const warningsSnapshot = await warningsQuery.get();
+    var warningsSnapshot = await warningsQuery.get();
     this.warnings = warningsSnapshot.docs.map(function(doc) {
       return {
         id: doc.id,
@@ -778,6 +777,7 @@ document.addEventListener('DOMContentLoaded', function() {
     window.dataManager.init();
   }
 });
+
 
 
 
