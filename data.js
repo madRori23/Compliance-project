@@ -355,9 +355,12 @@ class DataManager {
 
   showToast('Export completed!', 'success');
 }
+
+}
 // Create global data manager instance
 
 window.dataManager = new DataManager();
+
 
 
 
