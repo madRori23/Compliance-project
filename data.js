@@ -512,6 +512,7 @@ let dataManager;
 
 try {
     dataManager = new DataManager();
+    window.dataManager = dataManager;
     console.log('✅ DataManager instance created');
 } catch (error) {
     console.error('❌ DataManager creation failed:', error);
@@ -524,4 +525,4 @@ document.addEventListener('DOMContentLoaded', function() {
     window.dataManager.init();
   }
 });
-}
+
