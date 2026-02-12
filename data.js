@@ -82,6 +82,70 @@ class DataManager {
     );
   }
 
+  async loadInitialData() {
+  try {
+    console.log('Loading initial data...');
+    
+    // Check if we already have data
+    if (this.tests.length > 0 || this.warnings.length > 0) {
+      console.log('Data already loaded, skipping initial load');
+      return;
+    }
+    
+    // Load tests
+    const userId = null;
+    if (authManager && authManager.currentUser) {
+      userId = authManager.currentUser.uid;
+    }
+    
+    const testsQuery = window.db.collection(window.COLLECTIONS.TESTS)
+      .orderBy('date', 'desc')
+      
+    
+    if (!authManager.isManager() && userId) {
+      testsQuery = testsQuery.where('userId', '==', userId);
+    }
+    
+    const testsSnapshot = await testsQuery.get();
+    this.tests = testsSnapshot.docs.map(function(doc) {
+      return {
+        id: doc.id,
+        ...doc.data()
+      };
+    });
+    
+    // Load warnings
+    const warningsQuery = window.db.collection(window.COLLECTIONS.WARNINGS)
+      .orderBy('date', 'desc')
+      
+    
+    if (!authManager.isManager() && userId) {
+      warningsQuery = warningsQuery.where('userId', '==', userId);
+    }
+    
+    const warningsSnapshot = await warningsQuery.get();
+    this.warnings = warningsSnapshot.docs.map(function(doc) {
+      return {
+        id: doc.id,
+        ...doc.data()
+      };
+    });
+    
+    console.log('✅ Initial data loaded:', {
+      tests: this.tests.length,
+      warnings: this.warnings.length
+    });
+    
+    this.notifyListeners();
+    
+  } catch (error) {
+    console.error('❌ Error loading initial data:', error);
+    if (typeof showToast === 'function') {
+      showToast('Failed to load initial data', 'error');
+    }
+  }
+}
+
   // ============ CRUD OPERATIONS - TESTS ============
 
   async addTest(testData) {
@@ -714,6 +778,7 @@ document.addEventListener('DOMContentLoaded', function() {
     window.dataManager.init();
   }
 });
+
 
 
 
