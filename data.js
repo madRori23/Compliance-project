@@ -517,7 +517,6 @@ try {
     console.error('❌ DataManager creation failed:', error);
 }
   
-}
 
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
@@ -525,6 +524,7 @@ document.addEventListener('DOMContentLoaded', function() {
     window.dataManager.init();
   }
 });
+
 
 
 
