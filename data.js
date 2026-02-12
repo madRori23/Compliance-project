@@ -80,7 +80,7 @@ class DataManager {
       }
     );
   }
-}
+async loadInitialData() }
 
     try {
     console.log('Loading initial data...');
@@ -777,6 +777,7 @@ document.addEventListener('DOMContentLoaded', function() {
     window.dataManager.init();
   }
 });
+
 
 
 
