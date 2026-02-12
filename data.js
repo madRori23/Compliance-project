@@ -78,6 +78,10 @@ class DataManager {
     }
   }
 
+  getTests() {
+    return this.tests;
+  }
+
   async updateTest(testId, testData) {
     try {
       showLoading();
@@ -122,6 +126,10 @@ class DataManager {
     } finally {
       hideLoading();
     }
+  }
+
+  getTests() {
+    return this.tests;
   }
 
   async addWarning(warningData) {
@@ -198,6 +206,10 @@ class DataManager {
     } finally {
       hideLoading();
     }
+  }
+
+  getWarnings() {
+    return this.warnings;
   }
 
   async updateUserRole(userId, isManager) {
@@ -453,6 +465,7 @@ class DataManager {
 // Create global data manager instance
 
 window.dataManager = new DataManager();
+
 
 
 
