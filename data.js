@@ -525,10 +525,3 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 }
-
-
-
-
-
-
-
