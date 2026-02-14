@@ -711,9 +711,9 @@ viewUserDetails(userId) {
 
   renderStatsSection() {
     const testsToday = dataManager.getFilteredTestsToday().length;
-  const warningsToday = dataManager.getFilteredWarningsToday().length;
-  const totalTests = dataManager.getFilteredTotalTests();
-  const activeDays = dataManager.getFilteredActiveDays();
+    const warningsToday = dataManager.getFilteredWarningsToday().length;
+    const totalTests = dataManager.getFilteredTotalTests();
+    const activeDays = dataManager.getFilteredActiveDays();
     
     return `
       <section class="stats-section">
@@ -893,13 +893,13 @@ viewUserDetails(userId) {
         </div>
         <div class="stat-card">
           <div class="stat-content">
-            <h3>${dataManager.tests.length}</h3>
+            <h3>${dataManager.getFilteredtests.length}</h3>
             <p>All Tests</p>
           </div>
         </div>
         <div class="stat-card">
           <div class="stat-content">
-            <h3>${dataManager.warnings.length}</h3>
+            <h3>${dataManager.getFilteredwarnings.length}</h3>
             <p>All Warnings</p>
           </div>
         </div>
@@ -1911,6 +1911,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   await window.app.init();
 
 });
+
 
 
 
