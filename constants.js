@@ -230,15 +230,16 @@ const CONSTANTS = {
   ],
 
   MANAGER_TABS: [
-    { id: "overview", label: "👥 Overview" },
-    { id: "stats", label: "📊 User Stats" },
-    { id: "export", label: "📦 Export User Data" },
-    { id: "users", label: "⚙️ User Management" }
+    { id: "overview", label: "Overview" },
+    { id: "stats", label: "User Stats" },
+    { id: "export", label: "Export User Data" },
+    { id: "users", label: "User Management" }
   ]
 };
 
 // Export to window
 
 window.CONSTANTS = CONSTANTS;
+
 
 
