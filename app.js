@@ -269,7 +269,7 @@ setDatePreset(preset) {
   async toggleUserRole(userId, makeManager) {
   if (confirm(`Are you sure you want to ${makeManager ? 'promote' : 'demote'} this user?`)) {
     try {
-      await dataManager.updateUserRole(userId, makeManager);
+      await authManager.updateUserRole(userId, makeManager);
       this.render();
     } catch (error) {
       showToast(`Failed to update user role: ${error.message}`, 'error');
@@ -1911,6 +1911,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   await window.app.init();
 
 });
+
 
 
 
