@@ -863,8 +863,8 @@ viewUserDetails(userId) {
                     ${test.result}
                   </span>
                   <div class="item-actions">
-                    <button onclick="app.editTest('${test.id}')" class="action-btn edit">✏️ Edit</button>
-                    <button onclick="app.deleteTest('${test.id}')" class="action-btn delete">🗑️ Delete</button>
+                    <button onclick="app.editTest('${test.id}')" class="action-btn edit"> Edit</button>
+                    <button onclick="app.deleteTest('${test.id}')" class="action-btn delete"> Delete</button>
                   </div>
                 </div>
               </div>
@@ -928,7 +928,7 @@ viewUserDetails(userId) {
         <div class="p-4">
           ${allUsers.length === 0 ? `
             <div class="empty-state">
-              <div class="empty-icon">👤</div>
+              <div class="empty-icon"></div>
               <p>No users found</p>
             </div>
           ` : `
@@ -1164,7 +1164,7 @@ renderUserStatsTab() {
             <h3 class="font-bold mb-3">
               ${filterStartDate || filterEndDate 
                 ? 'Filtered Data — Network Breakdown' 
-                : `Week ${getWeekNumber(today)} — Network Breakdown`}
+                : `Network Breakdown`}
             </h3>
             <div class="overflow-x-auto">
               <table class="w-full table-auto">
@@ -1578,7 +1578,7 @@ renderWarningsTab() {
         <div class="max-h-500 overflow-y-auto">
           ${userWarnings.length === 0 ? `
             <div class="empty-state">
-              <div class="empty-icon">⚠️</div>
+              <div class="empty-icon"></div>
               <p>No warnings recorded yet</p>
             </div>
           ` : userWarnings.map(warning => `
@@ -1594,8 +1594,8 @@ renderWarningsTab() {
               </div>
               <div class="item-footer">
                 <div class="item-actions">
-                  <button onclick="app.editWarning('${warning.id}')" class="action-btn edit">✏️ Edit</button>
-                  <button onclick="app.deleteWarning('${warning.id}')" class="action-btn delete">🗑️ Delete</button>
+                  <button onclick="app.editWarning('${warning.id}')" class="action-btn edit"> Edit</button>
+                  <button onclick="app.deleteWarning('${warning.id}')" class="action-btn delete">Delete</button>
                 </div>
               </div>
             </div>
@@ -1911,6 +1911,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   await window.app.init();
 
 });
+
 
 
 
