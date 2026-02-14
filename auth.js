@@ -164,10 +164,57 @@ class AuthManager {
   isManager() {
     return this.currentUserData?.isManager || this.currentUserData?.role === 'manager' || this.currentUserData?.role === 'admin';
   }
+
+  async updateUserRole(userId, makeManager) {
+  try {
+    if (typeof showLoading === 'function') showLoading();
+    
+    // Update in Firestore
+    await window.db.collection(window.COLLECTIONS.USERS).doc(userId).update({
+      isManager: makeManager,
+      role: makeManager ? 'manager' : 'user',
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    
+    // Update in local cache
+    if (this.users) {
+      var userIndex = this.users.findIndex(function(u) { return u.id === userId; });
+      if (userIndex !== -1) {
+        this.users[userIndex].isManager = makeManager;
+        this.users[userIndex].role = makeManager ? 'manager' : 'user';
+      }
+    }
+    
+    // If updating current user, update currentUser object
+    if (this.currentUser && this.currentUser.uid === userId) {
+      this.currentUser.isManager = makeManager;
+      this.currentUser.role = makeManager ? 'manager' : 'user';
+    }
+    
+    if (typeof showToast === 'function') {
+      showToast(`User ${makeManager ? 'promoted to manager' : 'demoted to user'} successfully!`, 'success');
+    }
+    
+    // Trigger re-render
+    if (window.app && typeof window.app.render === 'function') {
+      window.app.render();
+    }
+    
+  } catch (error) {
+    console.error('Error updating user role:', error);
+    if (typeof showToast === 'function') {
+      showToast('Failed to update user role', 'error');
+    }
+    throw error;
+  } finally {
+    if (typeof hideLoading === 'function') hideLoading();
+  }
+}
 }
 
 // Create global auth instance
 
 window.authManager = new AuthManager();
+
 
 
