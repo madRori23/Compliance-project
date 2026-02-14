@@ -1143,7 +1143,7 @@ renderUserStatsTab() {
               </div>
             </div>
             <div class="mt-2 text-sm text-muted-foreground">
-              ${filterStartDate || filterEndDate 
+              ${filterStartDate || filterEndDate || selectedUserId !== 'all'
                 ? `Filtering: ${filterStartDate || 'Start'} to ${filterEndDate || 'End'}`
                 : 'Showing all data (no date filter applied)'}
             </div>
@@ -1931,6 +1931,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   await window.app.init();
 
 });
+
 
 
 
