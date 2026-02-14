@@ -719,9 +719,7 @@ viewUserDetails(userId) {
       <section class="stats-section">
         <div class="stats-grid">
           <div class="stat-card">
-            <span class="stat-icon">
-             <img src="https://www.google.com/imgres?q=quality%20assurance%20mobile%20manual%20test%20icon&imgurl=https%3A%2F%2Fwww.shutterstock.com%2Fimage-vector%2Fblack-single-approved-clipboard-icon-260nw-2609522621.jpg&imgrefurl=https%3A%2F%2Fwww.shutterstock.com%2Fsearch%2Fmanual-testing-icon&docid=6oRsdb0H0GXqkM&tbnid=T4EaKtv2DO2DsM&vet=12ahUKEwjoiKKvntmSAxUVZ0EAHcQpLXYQnPAOegQIexAB..i&w=260&h=280&hcb=2&ved=2ahUKEwjoiKKvntmSAxUVZ0EAHcQpLXYQnPAOegQIexAB">
-            </span>
+            <span class="stat-icon"></span>
             <div class="stat-content">
               <h3>${testsToday}</h3>
               <p>Tests Today</p>
@@ -729,7 +727,7 @@ viewUserDetails(userId) {
           </div>
           
           <div class="stat-card">
-            <span class="stat-icon">⚠️</span>
+            <span class="stat-icon"></span>
             <div class="stat-content">
               <h3>${warningsToday}</h3>
               <p>Warnings Today</p>
@@ -737,7 +735,7 @@ viewUserDetails(userId) {
           </div>
           
           <div class="stat-card">
-            <span class="stat-icon">📊</span>
+            <span class="stat-icon"></span>
             <div class="stat-content">
               <h3>${totalTests}</h3>
               <p>Total Tests</p>
@@ -745,7 +743,7 @@ viewUserDetails(userId) {
           </div>
           
           <div class="stat-card">
-            <span class="stat-icon">📅</span>
+            <span class="stat-icon"></span>
             <div class="stat-content">
               <h3>${activeDays}</h3>
               <p>Active Days</p>
@@ -845,9 +843,7 @@ viewUserDetails(userId) {
           <div class="max-h-500 overflow-y-auto">
             ${userTests.length === 0 ? `
               <div class="empty-state">
-                <div class="empty-icon">
-                  <img src="https://www.google.com/imgres?q=quality%20assurance%20mobile%20manual%20test%20icon&imgurl=https%3A%2F%2Fwww.shutterstock.com%2Fimage-vector%2Fblack-single-approved-clipboard-icon-260nw-2609522621.jpg&imgrefurl=https%3A%2F%2Fwww.shutterstock.com%2Fsearch%2Fmanual-testing-icon&docid=6oRsdb0H0GXqkM&tbnid=T4EaKtv2DO2DsM&vet=12ahUKEwjoiKKvntmSAxUVZ0EAHcQpLXYQnPAOegQIexAB..i&w=260&h=280&hcb=2&ved=2ahUKEwjoiKKvntmSAxUVZ0EAHcQpLXYQnPAOegQIexAB">
-                </div>
+                <div class="empty-icon"></div>
                 <p>No tests recorded yet</p>
               </div>
             ` : userTests.map(test => `
@@ -897,13 +893,13 @@ viewUserDetails(userId) {
         </div>
         <div class="stat-card">
           <div class="stat-content">
-            <h3>${dataManager.getFilteredtests.length}</h3>
+            <h3>${dataManager.getFilteredtests}</h3>
             <p>All Tests</p>
           </div>
         </div>
         <div class="stat-card">
           <div class="stat-content">
-            <h3>${dataManager.getFilteredwarnings.length}</h3>
+            <h3>${dataManager.getFilteredwarnings}</h3>
             <p>All Warnings</p>
           </div>
         </div>
@@ -1915,6 +1911,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   await window.app.init();
 
 });
+
 
 
 
