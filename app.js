@@ -1001,6 +1001,13 @@ renderUserStatsTab() {
   if (filterEndDate) {
     filteredTests = filteredTests.filter(t => t.date <= filterEndDate);
   }
+
+  if (selectedUserId !== 'all') {
+    filteredTests = filteredTests.filter(t => t.userId === selectedUserId);
+    filteredWarnings = filteredWarnings.filter(w => w.userId === selectedUserId);
+    
+    var selectedUser = allUsers.find(u => u.id === selectedUserId);
+  }
   
   // Calculate week and month tests based on filtered data
   const weekTests = filteredTests.filter(t => t.date >= weekStartStr && t.date <= todayStr);
@@ -1911,6 +1918,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   await window.app.init();
 
 });
+
 
 
 
