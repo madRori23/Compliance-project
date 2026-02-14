@@ -6,10 +6,20 @@ class WASPAApp {
       managerTab: 'overview',
       showRegisterForm: false,
       editingTest: null,
-      editingWarning: null
+      editingWarning: null,
+      selectedUserId: 'all',
+      statsStartDate: '',
+      statsEndDate: ''
     };
   }
-
+  applyUserFilter() {
+  const userSelect = document.getElementById('user-filter');
+  if (userSelect) {
+    this.currentState.selectedUserId = userSelect.value;
+    this.render();
+  }
+}
+  
   applyDateFilter() {
   const startDate = document.getElementById('stats-start-date')?.value;
   const endDate = document.getElementById('stats-end-date')?.value;
@@ -1006,8 +1016,6 @@ renderUserStatsTab() {
   if (selectedUserId !== 'all') {
     filteredTests = filteredTests.filter(t => t.userId === selectedUserId);
     filteredWarnings = filteredWarnings.filter(w => w.userId === selectedUserId);
-    
-    var selectedUser = allUsers.find(u => u.id === selectedUserId);
   }
   
   // Calculate week and month tests based on filtered data
@@ -1089,10 +1097,12 @@ renderUserStatsTab() {
         <div class="card-header">
           <h2>User Statistics</h2>
           <div class="flex items-center gap-2">
-            <select class="select-input" id="user-filter">
-              <option value="all">All Users (Organization)</option>
-              ${(authManager.users || []).map(user => `
-                <option value="${user.id}">${user.name} (${user.email})</option>
+            <select class="select-input" id="user-filter" onchange="app.applyUserFilter()">
+              <option value="all" ${selectedUserId === 'all' ? 'selected' : ''}>All Users (Organization)</option>
+              ${allUsers.map(user => `
+                <option value="${user.id}" ${selectedUserId === user.id ? 'selected' : ''}>
+                  ${user.name || 'Unnamed'} (${user.email})
+                </option>
               `).join('')}
             </select>
             <button class="btn btn-secondary" onclick="app.configureTargets()">Configure Targets</button>
@@ -1919,6 +1929,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   await window.app.init();
 
 });
+
 
 
 
