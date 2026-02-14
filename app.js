@@ -979,6 +979,7 @@ renderUserStatsTab() {
   // Get date filter values from currentState or defaults
   const filterStartDate = this.currentState.statsStartDate || '';
   const filterEndDate = this.currentState.statsEndDate || '';
+  const selectedUserId = this.currentState.selectUserId || 'all';
   
   // Calculate week and month dates
   const today = new Date();
@@ -1918,6 +1919,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   await window.app.init();
 
 });
+
 
 
 
